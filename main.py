@@ -5,7 +5,12 @@ import pandas as pd
 st.title("📊 Data Sense 2.0 - Bakery Dataset")
 
 # Load Excel file
-df = pd.read_excel("Worked dataset- DataSense.xlsx")
+# Load specific sheet
+df = pd.read_excel(
+    "Worked dataset- DataSense.xlsx",
+    sheet_name="Working sheet"
+)
+
 
 
 # Show data
