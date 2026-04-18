@@ -100,7 +100,9 @@ st.divider()
 st.header("📈 Visualização de Dados (Sustentação das Conclusões)")
 
 def plot_bar_pie(feature, summary_text=""):
-    if feature not in buyers.columns: return
+    if feature not in buyers.columns:
+        st.warning(f"Coluna '{feature}' não encontrada nos dados.")
+        return
 
     st.markdown(f"### **📊 Análise de {feature}**")
     data = buyers[feature].value_counts().sort_index()
@@ -111,26 +113,62 @@ def plot_bar_pie(feature, summary_text=""):
         bars = ax.bar(data.index.astype(str), data.values, color='#2E86C1', edgecolor='black')
         ax.set_title(f"Volume por {feature.upper()}", fontweight='bold')
         for bar in bars:
-            ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.5, f'{int(bar.get_height())}', ha='center', fontweight='bold')
+            ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.5,
+                    f'{int(bar.get_height())}', ha='center', fontweight='bold')
         plt.xticks(rotation=45)
         st.pyplot(fig)
+        plt.close(fig)
 
     with col2:
         fig, ax = plt.subplots(figsize=(8, 4))
-        colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FF33A1']
-        ax.pie(data, labels=data.index, autopct="%1.1f%%", startangle=140, colors=colors, pctdistance=0.85)
-        fig.gca().add_artist(plt.Circle((0,0), 0.70, fc='white'))
+        colors = ['#FF5733', '#33FF57', '#3357FF', '#F333FF', '#FF33A1',
+                  '#FFC300', '#DAF7A6', '#C70039', '#900C3F', '#581845']
+        ax.pie(data, labels=data.index, autopct="%1.1f%%", startangle=140,
+               colors=colors[:len(data)], pctdistance=0.85)
+        fig.gca().add_artist(plt.Circle((0, 0), 0.70, fc='white'))
         ax.set_title(f"Distribuição de {feature.upper()}", fontweight='bold')
         st.pyplot(fig)
+        plt.close(fig)
 
-    if summary_text: st.info(f"**Insight:** {summary_text}")
+    if summary_text:
+        st.info(f"**Insight:** {summary_text}")
 
-# Análise de todas as variáveis chave
-plot_bar_pie("Age brackets", "Meia-idade domina 79.6% das compras. Focar marketing neste público estável.")
-plot_bar_pie("Commute Distance", "41.6% moram a menos de 1 milha. A bike é a solução logística ideal.")
-plot_bar_pie("Occupation", "Profissionais e técnicos são o motor de vendas.")
-plot_bar_pie("Cars", "Quem possui menos carros tem maior propensão a comprar para substituir o segundo veículo.")
-plot_bar_pie("Income Group", "Público de renda média-alta (60k-90k) é o mais lucrativo.")
+# ----------------------------
+# ALL VARIABLES PLOTTED (except Age)
+# ----------------------------
+
+plot_bar_pie("Age brackets",
+             "Meia-idade domina 79.6% das compras. Focar marketing neste público estável.")
+
+plot_bar_pie("Commute Distance",
+             "41.6% moram a menos de 1 milha. A bike é a solução logística ideal.")
+
+plot_bar_pie("Occupation",
+             "Profissionais e técnicos são o motor de vendas.")
+
+plot_bar_pie("Cars",
+             "Quem possui menos carros tem maior propensão a comprar para substituir o segundo veículo.")
+
+plot_bar_pie("Income Group",
+             "Público de renda média-alta (60k-90k) é o mais lucrativo.")
+
+plot_bar_pie("Marriedarital Status",
+             "Casados tendem a dominar as compras — a motivação familiar e estabilidade financeira são fatores chave.")
+
+plot_bar_pie("Gender",
+             "Distribuição por género revela segmentos distintos — campanhas podem ser personalizadas por género.")
+
+plot_bar_pie("Children",
+             "Número de filhos influencia a necessidade de mobilidade alternativa e económica.")
+
+plot_bar_pie("Education",
+             "Nível de escolaridade correlaciona com perfil de renda e propensão à compra consciente.")
+
+plot_bar_pie("Home Owner",
+             "Proprietários demonstram maior estabilidade financeira e maior conversão de compra.")
+
+plot_bar_pie("Region",
+             "América do Norte lidera as compras. Geofencing regional pode maximizar o ROI de campanhas.")
 
 # ----------------------------
 # 5. ENGINE DE MACHINE LEARNING (POR QUE ACONTECEU?)
@@ -139,7 +177,8 @@ st.divider()
 st.header("🧠 Inteligência de Dados: O 'Golden Profile'")
 
 tree_df = df.copy().dropna()
-if "ID" in tree_df.columns: tree_df = tree_df.drop(columns=["ID"])
+if "ID" in tree_df.columns:
+    tree_df = tree_df.drop(columns=["ID"])
 
 # Encoding para ML usando todas as variáveis
 tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0})
@@ -148,7 +187,7 @@ categorical_cols = tree_df.select_dtypes(include="object").columns
 for col in categorical_cols:
     tree_df[col] = le.fit_transform(tree_df[col])
 
-X = tree_df.drop(columns=[target, "Income Group"]) # Drop apenas o derivado
+X = tree_df.drop(columns=[target, "Income Group"])  # Drop apenas o derivado
 y = tree_df[target]
 
 model = DecisionTreeClassifier(max_depth=4, min_samples_leaf=10, random_state=42)
@@ -166,6 +205,7 @@ with col_ml1:
     for i, v in enumerate(importance):
         ax.text(v + 0.005, i, f'{v:.1%}', fontweight='bold')
     st.pyplot(fig)
+    plt.close(fig)
 
 with col_ml2:
     st.subheader("**🤖 Retrato do Cliente Ideal**")
@@ -177,7 +217,7 @@ with col_ml2:
         f"e possui **{get_mode('Cars')} carro(s)**. O trajeto de **{get_mode('Commute Distance')}** é o gatilho da venda."
     )
     st.success(full_persona)
-    
+
     st.markdown("#### **💰 Estratégia de Lucro**")
     st.write("1. **Venda de Valor:** Foque na economia de combustível para profissionais.")
     st.write("2. **Upselling:** Este perfil valoriza acessórios de qualidade e segurança.")
