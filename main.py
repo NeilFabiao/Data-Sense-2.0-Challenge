@@ -199,7 +199,14 @@ st.markdown(
     "Cada recomendação abaixo é **gerada automaticamente** com base no peso que o modelo de "
     "Machine Learning atribuiu a cada variável. Quanto maior a importância, maior a prioridade estratégica."
 )
-
+# Get the actual age range for middle-aged buyers
+if "Age" in buyers.columns:
+    middle_age_buyers = buyers[buyers["Age brackets"] == get_mode("Age brackets")]["Age"]
+    age_min = int(middle_age_buyers.min())
+    age_max = int(middle_age_buyers.max())
+    age_range_str = f"{age_min}–{age_max} anos"
+else:
+    age_range_str = get_mode("Age brackets")
 feature_recommendations = {
     "Cars": {
         "icon": "🚗",
