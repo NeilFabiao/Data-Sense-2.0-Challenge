@@ -173,7 +173,7 @@ with col_txt:
     st.subheader("**🤖 The 'Golden Profile' Insight**")
     
     full_persona = (
-        f"The Machine Learning model confirms that the ideal MozBikes customer is a **{get_mode('Marital Status')}** "
+        f"The Machine Learning model confirms that the ideal MozBikes customer is a **{get_mode('Marriedarital Status')}** "
         f"**{get_mode('Gender')}** in the **{get_mode('Age brackets')}** stage of life. "
         f"Typically a **{get_mode('Education')}** holder working as a **{get_mode('Occupation')}**, "
         f"this **{get_mode('Home Owner')}** resides in **{get_mode('Region')}**. "
