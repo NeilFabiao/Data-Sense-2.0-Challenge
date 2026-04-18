@@ -39,7 +39,7 @@ df["Income Group"] = pd.cut(
 buyers = df[df[target] == "Yes"]
 
 # ----------------------------
-# 4. FUNCTION: BAR + PIE
+# 4. FUNCTION: IMPROVED BAR + PIE
 # ----------------------------
 def plot_bar_pie(feature, summary_text=""):
     if feature not in buyers.columns:
@@ -48,22 +48,45 @@ def plot_bar_pie(feature, summary_text=""):
     st.divider()
     st.subheader(f"📊 {feature} - Perfil dos Compradores")
 
-    data = buyers[feature].value_counts()
+    data = buyers[feature].value_counts().sort_index()
     col1, col2 = st.columns(2)
 
+    # --- IMPROVED BAR CHART ---
     with col1:
-        fig, ax = plt.subplots()
-        data.plot(kind="bar", ax=ax, color='#1f77b4')
-        ax.set_ylabel("Quantidade")
-        ax.set_title(f"Distribuição por {feature}")
+        fig, ax = plt.subplots(figsize=(8, 5))
+        bars = ax.bar(data.index.astype(str), data.values, color='#1f77b4', edgecolor='black', alpha=0.8)
+        
+        # Add Data Labels on top of bars
+        for bar in bars:
+            height = bar.get_height()
+            ax.text(bar.get_x() + bar.get_width()/2., height + 1,
+                    f'{int(height)}', ha='center', va='bottom', fontweight='bold')
+
+        ax.set_ylabel("Quantidade de Compradores")
+        ax.set_title(f"Volume por {feature}", fontsize=12)
         plt.xticks(rotation=45, ha='right')
-        plt.tight_layout()
         st.pyplot(fig)
 
+    # --- IMPROVED PIE CHART ---
     with col2:
-        fig, ax = plt.subplots()
-        ax.pie(data, labels=data.index, autopct="%1.1f%%", startangle=90)
-        ax.set_title(f"Percentual por {feature}")
+        fig, ax = plt.subplots(figsize=(8, 5))
+        # Use explode to slightly separate pieces if useful, or just clean labels
+        wedges, texts, autotexts = ax.pie(
+            data, 
+            labels=data.index, 
+            autopct="%1.1f%%", 
+            startangle=140, 
+            colors=plt.cm.Paired.colors,
+            pctdistance=0.85
+        )
+        # Make percentages bold and white for readability
+        plt.setp(autotexts, size=10, weight="bold", color="white")
+        
+        # Draw a circle at the center to turn it into a Donut (cleaner look)
+        centre_circle = plt.Circle((0,0), 0.70, fc='white')
+        fig.gca().add_artist(centre_circle)
+        
+        ax.set_title(f"Market Share por {feature}", fontsize=12)
         ax.axis("equal")
         st.pyplot(fig)
 
@@ -75,12 +98,12 @@ def plot_bar_pie(feature, summary_text=""):
 # ----------------------------
 st.header("📈 Buyer Profile Breakdown")
 plot_bar_pie("Gender", "**Insight:** Distribuição equilibrada entre homens e mulheres.")
-plot_bar_pie("Education", "**Insight:** Maioria com ensino superior.")
-plot_bar_pie("Occupation", "**Insight:** Profissionais e técnicos dominam.")
-plot_bar_pie("Age brackets", "**Insight:** Meia-idade domina as compras.")
-plot_bar_pie("Commute Distance", "**Insight:** Forte presença de trajetos curtos.")
-plot_bar_pie("Home Owner", "**Insight:** Indica estabilidade financeira do cliente.")
-plot_bar_pie("Income Group", "**Insight:** Compradores tendem a ter rendimento médio-alto.")
+plot_bar_pie("Education", "**Insight:** Maioria com ensino superior (Bachelors/Graduate).")
+plot_bar_pie("Occupation", "**Insight:** Profissionais e técnicos são a base do faturamento.")
+plot_bar_pie("Age brackets", "**Insight:** O público de 'Middle Age' é o principal motor de vendas.")
+plot_bar_pie("Commute Distance", "**Insight:** A maioria dos compradores percorre menos de 2 milhas.")
+plot_bar_pie("Home Owner", "**Insight:** A posse de imóvel próprio correlaciona com maior conversão.")
+plot_bar_pie("Income Group", "**Insight:** Compradores concentram-se na faixa de 30k–90k.")
 
 # ----------------------------
 # 6. MACHINE LEARNING ENGINE
@@ -89,16 +112,12 @@ tree_df = df.copy().dropna()
 if "ID" in tree_df.columns:
     tree_df = tree_df.drop(columns=["ID"])
 
-# Drop Income Group (derived) and raw Age if Age brackets exists to avoid redundancy
-cols_to_drop = []
-if "Income Group" in tree_df.columns:
-    cols_to_drop.append("Income Group")
+# Feature selection for ML
+cols_to_drop = ["Income Group"] # Drop derived column for ML training
 if "Age" in tree_df.columns and "Age brackets" in tree_df.columns:
     cols_to_drop.append("Age")
-if cols_to_drop:
-    tree_df = tree_df.drop(columns=cols_to_drop)
+tree_df = tree_df.drop(columns=cols_to_drop)
 
-# Encode target for ML
 tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0})
 le = LabelEncoder()
 categorical_cols = tree_df.select_dtypes(include="object").columns
@@ -116,7 +135,7 @@ importance = pd.Series(model.feature_importances_, index=X.columns)
 importance = importance[importance > 0].sort_values()
 
 # ----------------------------
-# 7. SPLIT LAYOUT: GRAPH (LEFT) & INSIGHT (RIGHT)
+# 7. SPLIT LAYOUT: GRAPH & INSIGHT
 # ----------------------------
 st.divider()
 st.header("🧠 Machine Learning 'Golden Profile'")
@@ -126,7 +145,12 @@ col_graph, col_txt = st.columns([1, 1.2])
 with col_graph:
     st.subheader("🚲 Purchase Drivers (Ranked)")
     fig, ax = plt.subplots(figsize=(6, 5))
-    importance.plot(kind="barh", ax=ax, color='teal')
+    importance_plot = importance.plot(kind="barh", ax=ax, color='teal')
+    
+    # Add labels to importance bars
+    for i, v in enumerate(importance):
+        ax.text(v + 0.01, i, f'{v:.1%}', color='teal', va='center', fontweight='bold')
+        
     ax.set_xlabel("Significance Score")
     st.pyplot(fig)
 
@@ -142,27 +166,19 @@ with col_txt:
             return str(val)
         return "N/A"
 
-    def get_income_group():
-        if "Income Group" in buyers.columns:
-            mode_val = buyers["Income Group"].mode()
-            if not mode_val.empty:
-                return str(mode_val[0])
-        return "N/A"
-
     full_persona = (
         f"The Machine Learning analysis identifies the high-probability buyer as a **{get_mode('Marriedarital Status')}** "
         f"**{get_mode('Gender')}** within the **{get_mode('Age brackets')}** demographic. "
         f"Typically a **{get_mode('Education')}** graduate working in a **{get_mode('Occupation')}** role, "
         f"this individual is likely a **{get_mode('Home Owner')}** living in **{get_mode('Region')}** "
         f"with **{get_mode('Children')} child(ren)**, **{get_mode('Cars')} vehicle(s)**, and an income in the "
-        f"**{get_income_group()}** range. "
+        f"**{get_mode('Income Group')}** range. "
         f"With a commute of **{get_mode('Commute Distance')}**, they represent MozBikes' primary target for "
         f"efficient urban mobility solutions."
     )
 
     st.success(full_persona)
 
-    # Top 3 Strategic Actions
     st.markdown("#### 🔥 Top 3 Strategic Actions")
     top3 = importance.sort_values(ascending=False).head(3)
 
@@ -172,9 +188,7 @@ with col_txt:
         elif factor == "Commute Distance":
             st.write(f"{i}. **Urban Focus:** Prioritize marketing within the {get_mode('Commute Distance')} radius of business hubs.")
         elif factor == "Income":
-            st.write(f"{i}. **Income Targeting:** Focus on the {get_income_group()} income bracket — they have spending power and commuting need.")
-        elif "Age" in factor:
-            st.write(f"{i}. **Demographic Targeting:** Focus branding on the {get_mode('Age brackets')} group, emphasizing reliability.")
+            st.write(f"{i}. **Income Targeting:** Focus on the {get_mode('Income Group')} bracket — they have spending power and commuting need.")
         else:
             st.write(f"{i}. **{factor} Optimization:** Leverage {factor} data to refine digital ad segmentation.")
 
@@ -183,34 +197,18 @@ with col_txt:
 # ----------------------------
 st.divider()
 st.header("🚀 Key Strategic Roadmap")
-
 rec1, rec2, rec3 = st.columns(3)
 
 with rec1:
     st.markdown("### 📢 Market Acquisition")
-    st.markdown(f"""
-    - **Persona Ads:** Use images of **{get_mode('Occupation')}s** commuting.
-    - **Hyper-Local:** Target **{get_mode('Region')}** specifically.
-    - **LinkedIn:** Reach **{get_mode('Education')}** degree holders.
-    """)
+    st.markdown(f"- **Persona Ads:** Showcase **{get_mode('Occupation')}s** commuting.\n- **Hyper-Local:** Target **{get_mode('Region')}** center.\n- **LinkedIn:** Target **{get_mode('Education')}** holders.")
 
 with rec2:
     st.markdown("### 🔧 Operations & Product")
-    st.markdown(f"""
-    - **B2B Strategy:** Offer fleet leasing to companies with many **{get_mode('Occupation')}s**.
-    - **Family Bundles:** Stock accessories for parents with **{get_mode('Children')}** kids.
-    - **Premium Delivery:** Home assembly for **{get_mode('Home Owner')}s**.
-    """)
+    st.markdown(f"- **B2B Strategy:** Fleet leasing for **{get_mode('Occupation')}** hubs.\n- **Family:** Stock gear for **{get_mode('Children')}** kids.\n- **Premium:** White-glove service for **{get_mode('Home Owner')}s**.")
 
 with rec3:
     st.markdown("### 📈 Scaling MozBikes")
-    st.markdown(f"""
-    - **Car Replacement:** Market to the **{get_mode('Cars')}-car** segment.
-    - **Distance Focus:** Optimize bike durability for **{get_mode('Commute Distance')}** trips.
-    - **Income Sweet Spot:** Tailor financing offers for the **{get_income_group()}** income bracket.
-    """)
+    st.markdown(f"- **Car Replacement:** Focus on the **{get_mode('Cars')}-car** segment.\n- **Distance:** Bike durability for **{get_mode('Commute Distance')}**.\n- **Income:** Offers for **{get_mode('Income Group')}** range.")
 
-st.success("""
-✅ **Final Executive Summary:** MozBikes success lies in the intersection of professional stability and short-distance urban commuting. 
-The model suggests moving away from 'leisure' and toward 'functional professional mobility'.
-""")
+st.success("✅ **Final Summary:** MozBikes success relies on targeting urban professionals with short commutes who view the bike as a vehicle, not a toy.")
