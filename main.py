@@ -11,7 +11,6 @@ st.set_page_config(page_title="MozBikes Strategic Analysis", layout="wide")
 
 st.title("🚲 Dashboard Estratégico MozBikes")
 
-# História e Contexto do Projeto
 st.markdown("""
 ### **📖 Contexto do Desafio: A Busca pelo Perfil Ideal**
 Este projeto foi desenvolvido como um exercício estratégico para a **MozBikes**. O objetivo central foi identificar, através de variáveis demográficas e socioeconômicas, qual é o perfil de cliente com maior probabilidade de comprar uma bicicleta.
@@ -63,7 +62,7 @@ with dw_col3:
     """)
 
 # ----------------------------
-# 3. CARREGAMENTO E TRATAMENTO (LIMPEZA)
+# 3. CARREGAMENTO E TRATAMENTO
 # ----------------------------
 try:
     df = pd.read_excel("Worked dataset- DataSense.xlsx", sheet_name="Working sheet")
@@ -74,14 +73,12 @@ except Exception as e:
 
 target = "Purchased Bike"
 
-# Binning de Renda para o Stakeholder (Simplificação)
 df["Income Group"] = pd.cut(
     df["Income"],
     bins=[0, 30000, 60000, 90000, 120000, float("inf")],
     labels=["<30k", "30k–60k", "60k–90k", "90k–120k", "120k+"]
 )
 
-# Filtro apenas para compradores (Análise de Perfil de Sucesso)
 buyers = df[df[target] == "Yes"]
 
 def get_mode(col_name):
@@ -94,7 +91,7 @@ def get_mode(col_name):
     return "N/A"
 
 # ----------------------------
-# 4. ANÁLISE VISUAL (O QUE OS DADOS DIZEM)
+# 4. ANÁLISE VISUAL
 # ----------------------------
 st.divider()
 st.header("📈 Visualização de Dados (Sustentação das Conclusões)")
@@ -133,45 +130,20 @@ def plot_bar_pie(feature, summary_text=""):
     if summary_text:
         st.info(f"**Insight:** {summary_text}")
 
-# ----------------------------
-# ALL VARIABLES PLOTTED (except Age)
-# ----------------------------
-
-plot_bar_pie("Age brackets",
-             "Meia-idade domina 79.6% das compras. Focar marketing neste público estável.")
-
-plot_bar_pie("Commute Distance",
-             "41.6% moram a menos de 1 milha. A bike é a solução logística ideal.")
-
-plot_bar_pie("Occupation",
-             "Profissionais e técnicos são o motor de vendas.")
-
-plot_bar_pie("Cars",
-             "Quem possui menos carros tem maior propensão a comprar para substituir o segundo veículo.")
-
-plot_bar_pie("Income Group",
-             "Público de renda média-alta (60k-90k) é o mais lucrativo.")
-
-plot_bar_pie("Marriedarital Status",
-             "Casados tendem a dominar as compras — a motivação familiar e estabilidade financeira são fatores chave.")
-
-plot_bar_pie("Gender",
-             "Distribuição por género revela segmentos distintos — campanhas podem ser personalizadas por género.")
-
-plot_bar_pie("Children",
-             "Número de filhos influencia a necessidade de mobilidade alternativa e económica.")
-
-plot_bar_pie("Education",
-             "Nível de escolaridade correlaciona com perfil de renda e propensão à compra consciente.")
-
-plot_bar_pie("Home Owner",
-             "Proprietários demonstram maior estabilidade financeira e maior conversão de compra.")
-
-plot_bar_pie("Region",
-             "América do Norte lidera as compras. Geofencing regional pode maximizar o ROI de campanhas.")
+plot_bar_pie("Age brackets",         "Meia-idade domina 79.6% das compras. Focar marketing neste público estável.")
+plot_bar_pie("Commute Distance",     "41.6% moram a menos de 1 milha. A bike é a solução logística ideal.")
+plot_bar_pie("Occupation",           "Profissionais e técnicos são o motor de vendas.")
+plot_bar_pie("Cars",                 "Quem possui menos carros tem maior propensão a comprar para substituir o segundo veículo.")
+plot_bar_pie("Income Group",         "Público de renda média-alta (60k-90k) é o mais lucrativo.")
+plot_bar_pie("Marriedarital Status", "Casados tendem a dominar as compras — a motivação familiar e estabilidade financeira são fatores chave.")
+plot_bar_pie("Gender",               "Distribuição por género revela segmentos distintos — campanhas podem ser personalizadas por género.")
+plot_bar_pie("Children",             "Número de filhos influencia a necessidade de mobilidade alternativa e económica.")
+plot_bar_pie("Education",            "Nível de escolaridade correlaciona com perfil de renda e propensão à compra consciente.")
+plot_bar_pie("Home Owner",           "Proprietários demonstram maior estabilidade financeira e maior conversão de compra.")
+plot_bar_pie("Region",               "América do Norte lidera as compras. Geofencing regional pode maximizar o ROI de campanhas.")
 
 # ----------------------------
-# 5. ENGINE DE MACHINE LEARNING (POR QUE ACONTECEU?)
+# 5. ENGINE DE MACHINE LEARNING
 # ----------------------------
 st.divider()
 st.header("🧠 Inteligência de Dados: O 'Golden Profile'")
@@ -180,14 +152,13 @@ tree_df = df.copy().dropna()
 if "ID" in tree_df.columns:
     tree_df = tree_df.drop(columns=["ID"])
 
-# Encoding para ML usando todas as variáveis
 tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0})
 le = LabelEncoder()
 categorical_cols = tree_df.select_dtypes(include="object").columns
 for col in categorical_cols:
     tree_df[col] = le.fit_transform(tree_df[col])
 
-X = tree_df.drop(columns=[target, "Income Group"])  # Drop apenas o derivado
+X = tree_df.drop(columns=[target, "Income Group"])
 y = tree_df[target]
 
 model = DecisionTreeClassifier(max_depth=4, min_samples_leaf=10, random_state=42)
@@ -214,16 +185,159 @@ with col_ml2:
         f"do gênero **{get_mode('Gender')}** na faixa de **{get_mode('Age brackets')}**. "
         f"Geralmente um profissional de nível **{get_mode('Education')}** que trabalha como **{get_mode('Occupation')}**. "
         f"Ele é **{get_mode('Home Owner')}**, reside na região **{get_mode('Region')}**, tem **{get_mode('Children')} filho(s)** "
-        f"e possui **{get_mode('Cars')} carro(s)**. O trajeto de **{get_mode('Commute Distance')}** é o gatilho da venda."
+        f"e possui **{get_mode('Cars')} carro(s)**. Pertence à faixa de renda **{get_mode('Income Group')}**, "
+        f"e o trajeto de **{get_mode('Commute Distance')}** é o gatilho da venda."
     )
     st.success(full_persona)
 
-    st.markdown("#### **💰 Estratégia de Lucro**")
-    st.write("1. **Venda de Valor:** Foque na economia de combustível para profissionais.")
-    st.write("2. **Upselling:** Este perfil valoriza acessórios de qualidade e segurança.")
+# ----------------------------
+# 6. RECOMENDAÇÕES AUTOMÁTICAS (TODAS AS VARIÁVEIS, ORDENADAS POR IMPORTÂNCIA)
+# ----------------------------
+st.divider()
+st.header("💰 Estratégia de Lucro (Gerada pelo Modelo)")
+st.markdown(
+    "Cada recomendação abaixo é **gerada automaticamente** com base no peso que o modelo de "
+    "Machine Learning atribuiu a cada variável. Quanto maior a importância, maior a prioridade estratégica."
+)
+
+feature_recommendations = {
+    "Cars": {
+        "icon": "🚗",
+        "title": "Substituição de Veículo",
+        "action": (
+            f"O número de carros é o **maior preditor de compra**. "
+            f"Crie campanhas de economia mensal (combustível vs. bike) "
+            f"direccionadas a donos de **{get_mode('Cars')} carro(s)**. "
+            f"Mensagem chave: *'A sua bike paga-se sozinha em 3 meses.'*"
+        )
+    },
+    "Income": {
+        "icon": "💵",
+        "title": "Segmentação por Renda",
+        "action": (
+            f"Renda é um driver de conversão forte. "
+            f"Priorize a faixa **{get_mode('Income Group')}** com planos de financiamento e parcelamento. "
+            f"Para rendas mais altas, posicione modelos premium com acessórios incluídos."
+        )
+    },
+    "Age": {
+        "icon": "🎯",
+        "title": "Marketing por Faixa Etária",
+        "action": (
+            f"Idade influencia directamente a decisão de compra. "
+            f"Concentre os criativos no segmento **{get_mode('Age brackets')}** "
+            f"com mensagens de saúde, produtividade e eficiência no dia-a-dia."
+        )
+    },
+    "Age brackets": {
+        "icon": "🎯",
+        "title": "Marketing por Faixa Etária",
+        "action": (
+            f"Idade influencia directamente a decisão de compra. "
+            f"Concentre os criativos no segmento **{get_mode('Age brackets')}** "
+            f"com mensagens de saúde, produtividade e eficiência no dia-a-dia."
+        )
+    },
+    "Commute Distance": {
+        "icon": "📍",
+        "title": "Proximidade como Gatilho de Venda",
+        "action": (
+            f"A distância do trabalho é um gatilho decisivo de compra. "
+            f"Lance campanhas geo-targeted para quem mora a **{get_mode('Commute Distance')}** do trabalho. "
+            f"Parceria com apps de mapas (Google Maps, Waze) para interceptar este público no momento certo."
+        )
+    },
+    "Occupation": {
+        "icon": "💼",
+        "title": "B2B e Parcerias Corporativas",
+        "action": (
+            f"Ocupação é um preditor relevante de conversão. "
+            f"Feche acordos B2B com empresas que empregam **{get_mode('Occupation')}s**, "
+            f"oferecendo planos corporativos com desconto por volume e manutenção incluída."
+        )
+    },
+    "Marriedarital Status": {
+        "icon": "👨‍👩‍👧",
+        "title": "Apelo Familiar e Estabilidade",
+        "action": (
+            f"Estado civil influencia a propensão à compra. "
+            f"Desenvolva campanhas para **{get_mode('Marriedarital Status')}s** "
+            f"com foco em mobilidade familiar, segurança e economia doméstica partilhada."
+        )
+    },
+    "Children": {
+        "icon": "👶",
+        "title": "Kits e Produtos Família",
+        "action": (
+            f"Número de filhos é um factor de decisão relevante. "
+            f"Crie pacotes família com cadeirinhas, reboques e capacetes para quem tem "
+            f"**{get_mode('Children')} filho(s)**. Promoções de back-to-school são ideais para este segmento."
+        )
+    },
+    "Education": {
+        "icon": "🎓",
+        "title": "Canal Educado e Conteúdo Técnico",
+        "action": (
+            f"Escolaridade prediz conversão consciente e racional. "
+            f"Use LinkedIn, podcasts e artigos técnicos para atingir graduados em **{get_mode('Education')}**. "
+            f"Este público responde melhor a dados e comparações objectivas do que a apelos emocionais."
+        )
+    },
+    "Region": {
+        "icon": "🌍",
+        "title": "Geofencing e Expansão Regional",
+        "action": (
+            f"Região é um factor de conversão significativo. "
+            f"Concentre **80% do budget de marketing** em **{get_mode('Region')}**. "
+            f"Para outras regiões, teste campanhas piloto antes de escalar o investimento."
+        )
+    },
+    "Home Owner": {
+        "icon": "🏠",
+        "title": "Serviço Premium para Proprietários",
+        "action": (
+            f"Ser proprietário indica estabilidade financeira e maior ticket médio. "
+            f"Ofereça serviços premium como montagem em domicílio, garantia estendida "
+            f"e personalização de produto para **{get_mode('Home Owner')}s**."
+        )
+    },
+    "Gender": {
+        "icon": "⚡",
+        "title": "Campanhas Personalizadas por Género",
+        "action": (
+            f"Género influencia preferências de produto e canal de comunicação. "
+            f"Desenvolva criativos e linhas de produto distintos para o segmento "
+            f"**{get_mode('Gender')}** dominante, sem negligenciar os restantes segmentos."
+        )
+    },
+}
+
+# Render ALL features ranked by importance (highest first), skipping zero-importance ones
+all_features_ranked = importance.sort_values(ascending=False)
+
+for rank, (feature, score) in enumerate(all_features_ranked.items(), 1):
+    rec = feature_recommendations.get(feature, None)
+
+    if rec:
+        icon   = rec["icon"]
+        title  = rec["title"]
+        action = rec["action"]
+    else:
+        icon   = "📊"
+        title  = feature
+        action = f"**{feature}** é um driver relevante com importância de {score:.1%}. Analise este segmento com prioridade."
+
+    with st.expander(f"#{rank}  {icon}  {title}  —  Importância: {score:.1%}"):
+        col_a, col_b = st.columns([1, 3])
+        with col_a:
+            st.metric(label="Peso no Modelo", value=f"{score:.1%}")
+            st.markdown(f"**Variável:** `{feature}`")
+        with col_b:
+            st.markdown("**Acção Recomendada:**")
+            st.info(action)
 
 # ----------------------------
-# 6. ROADMAP ESTRATÉGICO FINAL (RECOMENDAÇÕES)
+# 7. ROADMAP ESTRATÉGICO FINAL
 # ----------------------------
 st.divider()
 st.header("🚀 Roadmap Estratégico MozBikes")
@@ -251,7 +365,7 @@ with rec3:
     st.markdown(f"""
     - **Substituição:** Campanhas para donos de apenas **{get_mode('Cars')}** carro.
     - **Eficiência:** Otimizar durabilidade para trajetos de **{get_mode('Commute Distance')}**.
-    - **Financiamento:** Facilitar para a faixa de renda **30k-60k**.
+    - **Financiamento:** Facilitar para a faixa de renda **{get_mode('Income Group')}**.
     """)
 
 st.success("""
