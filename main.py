@@ -61,40 +61,4 @@ if "Income" in df.columns:
     st.subheader("Income of Bike Buyers (Distribution)")
     fig, ax = plt.subplots()
     buyers["Income"].plot(kind="hist", bins=10, ax=ax)
-    st.pyplot(fig)    plot_yes_no("Gender")
-
-# ----------------------------
-# KPI 2: Marital Status
-# ----------------------------
-if "Marital Status" in df.columns:
-    plot_yes_no("Marital Status")
-
-# ----------------------------
-# KPI 3: Education
-# ----------------------------
-if "Education" in df.columns:
-    plot_yes_no("Education")
-
-# ----------------------------
-# KPI 4: Occupation
-# ----------------------------
-if "Occupation" in df.columns:
-    plot_yes_no("Occupation")
-
-# ----------------------------
-# KPI 5: Region
-# ----------------------------
-if "Region" in df.columns:
-    plot_yes_no("Region")
-
-# ----------------------------
-# KPI 6: Commute Distance
-# ----------------------------
-if "Commute Distance" in df.columns:
-    plot_yes_no("Commute Distance")
-
-# ----------------------------
-# KPI 7: Age Brackets
-# ----------------------------
-if "Age brackets" in df.columns:
-    plot_yes_no("Age brackets")
+    st.pyplot(fig)
