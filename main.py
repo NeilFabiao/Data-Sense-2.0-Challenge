@@ -193,7 +193,7 @@ plot_bar_pie("Commute Distance",     f"{pct_commute} moram a {top_commute} do tr
 plot_bar_pie("Occupation",           f"{top_occupation}s e técnicos são o motor de vendas ({pct_occupation}).")
 plot_bar_pie("Cars",                 "Quem possui menos carros tem maior propensão a comprar para substituir o segundo veículo.")
 plot_bar_pie("Income Group",         f"Público de renda {get_mode('Income Group')} é o mais lucrativo.")
-plot_bar_pie("Marital Status", "Os Solteiros tendem a dominar as compras — a motivação familiar e estabilidade financeira são fatores chave.")
+plot_bar_pie("Marriedarital Status", "Os Solteiros tendem a dominar as compras — a motivação familiar e estabilidade financeira são fatores chave.")
 plot_bar_pie("Gender",               "Distribuição por género revela segmentos distintos — campanhas podem ser personalizadas por género.")
 plot_bar_pie("Children",             "Número de filhos influencia a necessidade de mobilidade alternativa e económica.")
 plot_bar_pie("Education",            f"Nível {top_education} correlaciona com perfil de renda e propensão à compra consciente ({pct_education}).")
