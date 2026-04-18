@@ -4,8 +4,9 @@ import pandas as pd
 # Title
 st.title("📊 Data Sense 2.0 - Bakery Dataset")
 
-# Load dataset directly (make sure file is in same folder)
-df = pd.read_csv("Worked dataset- DataSense.csv")
+# Load Excel file
+df = pd.read_excel("Worked dataset- DataSense.xlsx")
+
 
 # Show data
 st.subheader("Dataset Preview")
