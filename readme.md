@@ -1,12 +1,11 @@
-#### 📊 Data Sense 2.0 Challenge – Bakery Data Analysis
+## 📊 Data Sense 2.0 Challenge – Bakery Data Analysis
 
-In this challenge, we will analyze bakery data to answer key business questions, such as:
+In this challenge, we analyze bakery customer data to answer key business questions, such as:
 
-- Which products sell the most and least?
-- What are the daily and monthly sales trends?
-- When are the peak sales hours or days?
-- Which products generate the most revenue?
-- How can the bakery improve sales and operations?
+- Which customer segments contribute the most to revenue?
+- How does income influence purchasing behavior?
+- Which demographics (gender, marital status, education) are more likely to buy?
+- How do occupation and home ownership relate to spending patterns?
+- Which customer profiles should be targeted to improve sales?
 
-The goal is to use data to generate clear insights and practical recommendations to help the bakery grow and make better decisions.
-**
+The goal is to uncover patterns in customer data and generate actionable insights to support better marketing and business decisions.
