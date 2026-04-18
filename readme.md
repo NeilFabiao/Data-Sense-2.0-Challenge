@@ -1,11 +1,9 @@
-## 📊 Data Sense 2.0 Challenge – Bakery Data Analysis
+## 📊 Data Sense 2.0 Challenge – Análise de Dados de Padaria
 
-In this challenge, we analyze bakery customer data to answer key business questions, such as:
+Neste desafio, analisamos dados de clientes de uma padaria para responder a questões-chave de negócio, tais como:
 
-- Which customer segments contribute the most to revenue?
-- How does income influence purchasing behavior?
-- Which demographics (gender, marital status, education) are more likely to buy?
-- How do occupation and home ownership relate to spending patterns?
-- Which customer profiles should be targeted to improve sales?
+- Quais segmentos de clientes contribuem mais para a receita?
+- Quais clientes têm maior probabilidade de comprar e a que distância?
+- Quais perfis de clientes devem ser alvo para melhorar as vendas? (podemos usar um modelo simples de ML para isso)
 
-The goal is to uncover patterns in customer data and generate actionable insights to support better marketing and business decisions.
+O objetivo é identificar padrões nos dados dos clientes e gerar insights acionáveis para apoiar melhores decisões de marketing e negócio.
