@@ -1,4 +1,4 @@
-**## 📊 Data Sense 2.0 Challenge – Bakery Data Analysis
+#### 📊 Data Sense 2.0 Challenge – Bakery Data Analysis
 
 In this challenge, we will analyze bakery data to answer key business questions, such as:
 
