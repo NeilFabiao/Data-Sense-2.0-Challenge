@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # ----------------------------
 # SETUP
 # ----------------------------
-st.title("🚲 Bike Buyers KPI Dashboard (YES Only)")
+st.title("🚲 Bike Buyers Analysis (YES Only) - Bar & Pie Charts")
 
 df = pd.read_excel(
     "Worked dataset- DataSense.xlsx",
@@ -20,65 +20,51 @@ target = "Purchased Bike"
 buyers = df[df[target] == "Yes"]
 
 # ----------------------------
-# KPI CARDS
+# FUNCTION: BAR + PIE SIDE BY SIDE
 # ----------------------------
-st.subheader("📊 Overview (Buyers Only)")
-
-col1, col2 = st.columns(2)
-
-col1.metric("Total Buyers", len(buyers))
-col2.metric("Share of Dataset", f"{len(buyers) / len(df) * 100:.2f}%")
-
-st.divider()
-
-# ----------------------------
-# FUNCTION: YES ONLY CHART
-# ----------------------------
-def plot_yes_only(feature):
-    st.subheader(f"Bike Buyers (YES) - {feature}")
+def plot_bar_pie(feature):
+    st.subheader(f"📊 {feature} - Bike Buyers (YES)")
 
     data = buyers[feature].value_counts()
 
-    fig, ax = plt.subplots()
-    data.plot(kind="bar", ax=ax)
+    col1, col2 = st.columns(2)
 
-    ax.set_ylabel("Number of Buyers")
+    # ---------------- BAR CHART ----------------
+    with col1:
+        fig, ax = plt.subplots()
+        data.plot(kind="bar", ax=ax)
+        ax.set_ylabel("Count")
+        ax.set_title("Bar Chart")
+        st.pyplot(fig)
 
-    st.pyplot(fig)
+    # ---------------- PIE CHART ----------------
+    with col2:
+        fig, ax = plt.subplots()
+        ax.pie(data, labels=data.index, autopct="%1.1f%%", startangle=90)
+        ax.set_title("Pie Chart")
+        ax.axis("equal")
+        st.pyplot(fig)
 
 # ----------------------------
-# KPIs (YES ONLY)
+# KPIs
 # ----------------------------
 if "Gender" in df.columns:
-    plot_yes_only("Gender")
+    plot_bar_pie("Gender")
 
 if "Marital Status" in df.columns:
-    plot_yes_only("Marital Status")
+    plot_bar_pie("Marital Status")
 
 if "Education" in df.columns:
-    plot_yes_only("Education")
+    plot_bar_pie("Education")
 
 if "Occupation" in df.columns:
-    plot_yes_only("Occupation")
+    plot_bar_pie("Occupation")
 
 if "Region" in df.columns:
-    plot_yes_only("Region")
+    plot_bar_pie("Region")
 
 if "Commute Distance" in df.columns:
-    plot_yes_only("Commute Distance")
+    plot_bar_pie("Commute Distance")
 
 if "Age brackets" in df.columns:
-    plot_yes_only("Age brackets")
-
-# ----------------------------
-# INCOME (special case)
-# ----------------------------
-if "Income" in df.columns:
-    st.subheader("💰 Income Distribution (Buyers Only)")
-
-    fig, ax = plt.subplots()
-    buyers["Income"].plot(kind="hist", bins=10, ax=ax)
-
-    ax.set_xlabel("Income")
-
-    st.pyplot(fig)
+    plot_bar_pie("Age brackets")
