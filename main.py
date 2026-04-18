@@ -2,10 +2,11 @@ import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Title
-st.title("🚲 Bike Buyers Analysis - Side by Side Pie Charts")
+# ----------------------------
+# SETUP
+# ----------------------------
+st.title("🚲 Bike Purchase KPI Dashboard")
 
-# Load dataset
 df = pd.read_excel(
     "Worked dataset- DataSense.xlsx",
     sheet_name="Working sheet"
@@ -15,44 +16,68 @@ df.columns = df.columns.str.strip()
 
 target = "Purchased Bike"
 
-# Filter only buyers
+# ----------------------------
+# KPI CARDS (OVERVIEW)
+# ----------------------------
+total_customers = len(df)
 buyers = df[df[target] == "Yes"]
+non_buyers = df[df[target] == "No"]
+
+conversion_rate = len(buyers) / total_customers * 100
+
+col1, col2, col3 = st.columns(3)
+
+col1.metric("Total Customers", total_customers)
+col2.metric("Total Buyers", len(buyers))
+col3.metric("Conversion Rate", f"{conversion_rate:.2f}%")
+
+st.divider()
 
 # ----------------------------
-# FUNCTION: PIE CHART
+# FUNCTION: YES/NO SPLIT CHART
 # ----------------------------
-def create_pie(ax, feature):
-    data = buyers[feature].value_counts()
-    ax.pie(data, labels=data.index, autopct="%1.1f%%", startangle=90)
-    ax.set_title(feature)
-    ax.axis("equal")
+def plot_kpi(feature):
+    st.subheader(f"{feature} vs Bike Purchase")
 
-# ----------------------------
-# SIDE BY SIDE LAYOUT
-# ----------------------------
-col1, col2 = st.columns(2)
+    ct = pd.crosstab(df[feature], df[target])
 
-with col1:
-    fig1, ax1 = plt.subplots()
-    create_pie(ax1, "Gender")
-    st.pyplot(fig1)
+    fig, ax = plt.subplots()
+    ct.plot(kind="bar", stacked=True, ax=ax)
 
-with col2:
-    fig2, ax2 = plt.subplots()
-    create_pie(ax2, "Marital Status")
-    st.pyplot(fig2)
+    ax.set_ylabel("Count")
+    ax.legend(title="Purchased Bike")
+
+    st.pyplot(fig)
 
 # ----------------------------
-# ANOTHER ROW (optional)
+# KPI SECTIONS
 # ----------------------------
-col3, col4 = st.columns(2)
 
-with col3:
-    fig3, ax3 = plt.subplots()
-    create_pie(ax3, "Region")
-    st.pyplot(fig3)
+if "Gender" in df.columns:
+    plot_kpi("Gender")
 
-with col4:
-    fig4, ax4 = plt.subplots()
-    create_pie(ax4, "Education")
-    st.pyplot(fig4)
+if "Marital Status" in df.columns:
+    plot_kpi("Marital Status")
+
+if "Education" in df.columns:
+    plot_kpi("Education")
+
+if "Occupation" in df.columns:
+    plot_kpi("Occupation")
+
+if "Region" in df.columns:
+    plot_kpi("Region")
+
+if "Commute Distance" in df.columns:
+    plot_kpi("Commute Distance")
+
+if "Age brackets" in df.columns:
+    plot_kpi("Age brackets")
+
+if "Income" in df.columns:
+    st.subheader("Income Distribution vs Purchase")
+
+    fig, ax = plt.subplots()
+    df.boxplot(column="Income", by=target, ax=ax)
+
+    st.pyplot(fig)
