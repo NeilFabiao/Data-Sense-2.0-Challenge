@@ -5,7 +5,7 @@ import matplotlib.pyplot as plt
 # ----------------------------
 # SETUP
 # ----------------------------
-st.title("🚲 Bike Purchase KPI Dashboard")
+st.title("🚲 Bike Buyers KPI Dashboard (YES Only)")
 
 df = pd.read_excel(
     "Worked dataset- DataSense.xlsx",
@@ -16,68 +16,69 @@ df.columns = df.columns.str.strip()
 
 target = "Purchased Bike"
 
-# ----------------------------
-# KPI CARDS (OVERVIEW)
-# ----------------------------
-total_customers = len(df)
+# Filter only buyers
 buyers = df[df[target] == "Yes"]
-non_buyers = df[df[target] == "No"]
 
-conversion_rate = len(buyers) / total_customers * 100
+# ----------------------------
+# KPI CARDS
+# ----------------------------
+st.subheader("📊 Overview (Buyers Only)")
 
-col1, col2, col3 = st.columns(3)
+col1, col2 = st.columns(2)
 
-col1.metric("Total Customers", total_customers)
-col2.metric("Total Buyers", len(buyers))
-col3.metric("Conversion Rate", f"{conversion_rate:.2f}%")
+col1.metric("Total Buyers", len(buyers))
+col2.metric("Share of Dataset", f"{len(buyers) / len(df) * 100:.2f}%")
 
 st.divider()
 
 # ----------------------------
-# FUNCTION: YES/NO SPLIT CHART
+# FUNCTION: YES ONLY CHART
 # ----------------------------
-def plot_kpi(feature):
-    st.subheader(f"{feature} vs Bike Purchase")
+def plot_yes_only(feature):
+    st.subheader(f"Bike Buyers (YES) - {feature}")
 
-    ct = pd.crosstab(df[feature], df[target])
+    data = buyers[feature].value_counts()
 
     fig, ax = plt.subplots()
-    ct.plot(kind="bar", stacked=True, ax=ax)
+    data.plot(kind="bar", ax=ax)
 
-    ax.set_ylabel("Count")
-    ax.legend(title="Purchased Bike")
+    ax.set_ylabel("Number of Buyers")
 
     st.pyplot(fig)
 
 # ----------------------------
-# KPI SECTIONS
+# KPIs (YES ONLY)
 # ----------------------------
-
 if "Gender" in df.columns:
-    plot_kpi("Gender")
+    plot_yes_only("Gender")
 
 if "Marital Status" in df.columns:
-    plot_kpi("Marital Status")
+    plot_yes_only("Marital Status")
 
 if "Education" in df.columns:
-    plot_kpi("Education")
+    plot_yes_only("Education")
 
 if "Occupation" in df.columns:
-    plot_kpi("Occupation")
+    plot_yes_only("Occupation")
 
 if "Region" in df.columns:
-    plot_kpi("Region")
+    plot_yes_only("Region")
 
 if "Commute Distance" in df.columns:
-    plot_kpi("Commute Distance")
+    plot_yes_only("Commute Distance")
 
 if "Age brackets" in df.columns:
-    plot_kpi("Age brackets")
+    plot_yes_only("Age brackets")
 
+# ----------------------------
+# INCOME (special case)
+# ----------------------------
 if "Income" in df.columns:
-    st.subheader("Income Distribution vs Purchase")
+    st.subheader("💰 Income Distribution (Buyers Only)")
 
     fig, ax = plt.subplots()
-    df.boxplot(column="Income", by=target, ax=ax)
+    buyers["Income"].plot(kind="hist", bins=10, ax=ax)
+
+    ax.set_xlabel("Income")
 
     st.pyplot(fig)
