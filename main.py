@@ -5,37 +5,37 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import LabelEncoder
 
 # ----------------------------
-# SETUP
+# 1. SETUP
 # ----------------------------
-st.set_page_config(page_title="Análise Bike Buyers", layout="wide")
+st.set_page_config(page_title="MozBikes Strategic Dashboard", layout="wide")
 
-st.title("🚲 Bike Buyers Analysis (YES Only)")
-st.markdown(
-    "Esta análise foca exclusivamente no perfil de clientes que **compraram** uma bicicleta, "
-    "identificando padrões demográficos e comportamentais."
-)
+st.title("🚲 MozBikes Strategic Analysis")
+st.markdown("Dashboard de inteligência comercial focado no perfil de conversão e recomendações de Machine Learning.")
 
 # ----------------------------
-# LOAD DATA
+# 2. LOAD DATA
 # ----------------------------
 try:
     df = pd.read_excel("Worked dataset- DataSense.xlsx", sheet_name="Working sheet")
-except:
-    st.error("Arquivo não encontrado. Verifique o nome do arquivo Excel.")
+    df.columns = df.columns.str.strip()
+except Exception as e:
+    st.error(f"Erro ao carregar o arquivo: {e}")
     st.stop()
 
-df.columns = df.columns.str.strip()
 target = "Purchased Bike"
 
 # ----------------------------
-# FILTER BUYERS
+# 3. FILTER BUYERS
 # ----------------------------
 buyers = df[df[target] == "Yes"]
 
 # ----------------------------
-# FUNCTION: BAR + PIE
+# 4. FUNCTION: BAR + PIE
 # ----------------------------
 def plot_bar_pie(feature, summary_text=""):
+    if feature not in buyers.columns:
+        return
+        
     st.divider()
     st.subheader(f"📊 {feature} - Perfil dos Compradores")
 
@@ -57,8 +57,7 @@ def plot_bar_pie(feature, summary_text=""):
             data,
             labels=data.index,
             autopct="%1.1f%%",
-            startangle=90,
-            colors=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+            startangle=90
         )
         ax.set_title(f"Percentual por {feature}")
         ax.axis("equal")
@@ -68,43 +67,23 @@ def plot_bar_pie(feature, summary_text=""):
         st.info(summary_text)
 
 # ----------------------------
-# ANALYSIS SECTIONS
+# 5. VISUAL ANALYSIS
 # ----------------------------
-if "Gender" in df.columns:
-    plot_bar_pie(
-        "Gender",
-        "**Insight:** O mercado está equilibrado entre homens e mulheres."
-    )
+st.header("📈 Buyer Profile Breakdown")
 
-if "Education" in df.columns:
-    plot_bar_pie(
-        "Education",
-        "**Insight:** A maioria dos compradores possui ensino superior."
-    )
-
-if "Occupation" in df.columns:
-    plot_bar_pie(
-        "Occupation",
-        "**Insight:** Profissionais e trabalhadores qualificados dominam."
-    )
-
-if "Commute Distance" in df.columns:
-    plot_bar_pie(
-        "Commute Distance",
-        "**Insight:** A maioria tem deslocamentos curtos."
-    )
-
-if "Age brackets" in df.columns:
-    plot_bar_pie(
-        "Age brackets",
-        "**Insight:** A meia-idade domina as compras."
-    )
+plot_bar_pie("Gender", "**Insight:** Distribuição equilibrada entre homens e mulheres.")
+plot_bar_pie("Education", "**Insight:** Maioria com ensino superior.")
+plot_bar_pie("Occupation", "**Insight:** Profissionais e técnicos dominam.")
+plot_bar_pie("Age", "**Insight:** Idade ajuda a refinar o target com maior precisão.")
+plot_bar_pie("Age brackets", "**Insight:** Meia-idade domina as compras.")
+plot_bar_pie("Commute Distance", "**Insight:** Forte presença de trajetos curtos.")
+plot_bar_pie("Home Owner", "**Insight:** Indica estabilidade financeira do cliente.")
 
 # ----------------------------
-# MACHINE LEARNING
+# 6. MACHINE LEARNING
 # ----------------------------
 st.divider()
-st.title("🌳 What Drives Bike Purchases")
+st.header("🌳 What Drives Bike Purchases")
 
 tree_df = df.copy().dropna()
 
@@ -131,7 +110,7 @@ model = DecisionTreeClassifier(max_depth=4, min_samples_leaf=10, random_state=42
 model.fit(X, y)
 
 # ----------------------------
-# FEATURE IMPORTANCE
+# 7. FEATURE IMPORTANCE
 # ----------------------------
 st.subheader("🚲 Key Drivers of Bike Purchase")
 
@@ -144,19 +123,92 @@ ax.set_xlabel("Importance Score")
 st.pyplot(fig)
 
 # ----------------------------
-# TOP FACTORS
+# 8. TOP 3 DRIVERS
 # ----------------------------
-st.subheader("🔥 Top Factors Explained")
+st.subheader("🔥 Top 3 Drivers")
 
-top_factors = importance.sort_values(ascending=False).head(5)
+top3 = importance.sort_values(ascending=False).head(3)
 
-if not top_factors.empty:
-    for factor, score in top_factors.items():
-        if factor == "Cars":
-            st.write("**Cars:** Fewer cars → higher likelihood to buy a bike.")
-        elif factor == "Commute Distance":
-            st.write("**Commute Distance:** Short distances increase bike usage.")
-        else:
-            st.write(f"**{factor}:** Impact = {score:.2%}")
-else:
-    st.write("No significant drivers found.")
+for i, (factor, score) in enumerate(top3.items(), 1):
+    st.write(f"{i}️⃣ **{factor}** — Impact: {score:.2%}")
+
+# ----------------------------
+# 9. PERSONA (FIXED)
+# ----------------------------
+st.divider()
+st.header("🧠 Ideal Customer Profile")
+
+persona_df = df.copy().dropna()
+
+if "ID" in persona_df.columns:
+    persona_df = persona_df.drop(columns=["ID"])
+
+persona_df = persona_df[persona_df[target] == "Yes"]
+
+def get_mode(col):
+    if col in persona_df.columns and not persona_df[col].mode().empty:
+        return persona_df[col].mode()[0]
+    return "N/A"
+
+persona = {
+    "Gender": get_mode("Gender"),
+    "Age": get_mode("Age"),
+    "AgeBracket": get_mode("Age brackets"),
+    "Occupation": get_mode("Occupation"),
+    "Education": get_mode("Education"),
+    "Region": get_mode("Region"),
+    "Children": get_mode("Children"),
+    "Cars": get_mode("Cars"),
+    "Commute": get_mode("Commute Distance"),
+    "HomeOwner": get_mode("Home Owner")
+}
+
+# Handle Yes/No or 1/0
+home_status = "homeowner" if persona["HomeOwner"] in ["Yes", 1] else "non-homeowner"
+
+st.markdown(f"""
+Based on the Decision Tree analysis and buyer distribution, the **highest-probability MozBikes customer** is a **{persona['AgeBracket']} {persona['Gender']} professional**, approximately **{persona['Age']} years old**.
+
+This individual typically:
+- Works in a **{persona['Occupation']} role**
+- Holds a **{persona['Education']} qualification**
+- Lives in **{persona['Region']}**
+- Is a **{home_status}**
+- Has **{persona['Children']} children** and owns **{persona['Cars']} car(s)**
+
+From a behavioral standpoint, their **{persona['Commute']} commute** indicates a strong preference for **short-distance, efficient transportation**.
+
+👉 This profile represents a **financially stable, urban working professional**, making them the ideal target for MozBikes' mobility solutions.
+""")
+
+# ----------------------------
+# 10. STRATEGIC ACTIONS
+# ----------------------------
+st.divider()
+st.header("🚀 Key Strategic Actions")
+
+st.markdown("""
+### 1️⃣ Vehicle Ownership (Cars)
+- Fewer cars → higher likelihood to buy  
+- Position bikes as a **car alternative**
+
+### 2️⃣ Commute Distance
+- Short trips dominate  
+- Focus on **urban mobility & last-mile transport**
+
+### 3️⃣ Occupation
+- Professionals dominate buyers  
+- Target workplaces & corporate programs  
+
+---
+
+💡 **Strategic Insight:**  
+MozBikes is solving a **daily transport problem**, not selling leisure products.
+""")
+
+# ----------------------------
+# 11. FINAL TAKEAWAY
+# ----------------------------
+st.success("""
+✅ The ideal MozBikes customer is a working professional with a short commute, using bicycles as a practical alternative to cars.
+""")
