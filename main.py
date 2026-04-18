@@ -13,11 +13,21 @@ st.title("🚲 Dashboard Estratégico MozBikes")
 
 # História e Contexto do Projeto
 st.markdown("""
-### **📖 A História do Projeto: Em busca da Tilápia**
-Este projeto foi desenvolvido para identificar o **Perfil Ideal de Cliente** da MozBikes. 
-Como aprendemos no **DataWave 2.0**, não precisamos de ferramentas complexas se não entendermos o problema. 
-O objetivo foi usar o **anzol certo** (dados limpos e análise direta) para pescar a **tilápia certa** (o comprador de alta conversão e lucro).
-""")
+### **📖 Contexto do Desafio: A Busca pelo Perfil Ideal**
+Este projeto foi desenvolvido como um exercício estratégico para a **MozBikes**. O objetivo central foi identificar, através de variáveis demográficas e socioeconômicas, qual é o perfil de cliente com maior probabilidade de comprar uma bicicleta.
+
+Como uma **tarefa oculta**, o desafio exigia que as conclusões fossem sustentadas por visualizações de dados claras, fornecendo recomendações com clareza e certeza para os stakeholders. 
+
+#### **🎯 O Perfil "Golden": O Profissional Urbano de Meia-Idade**
+Com base nos dados analisados, o perfil com maior probabilidade de conversão é composto por:
+* **Idade:** Indivíduos de meia-idade (**79,6%** dos compradores).
+* **Ocupação:** Profissionais (**31,2%**).
+* **Logística:** Pessoas que vivem a **0-1 milha** do trabalho (**41,6%**).
+* **Geografia:** Residentes da **América do Norte** (**45,7%**).
+* **Educação:** Graduados com nível de **Bacharelado** (**35,1%**).
+
+**Justificativa Econômica e Comportamental:** Este grupo possui estabilidade financeira e alto poder aquisitivo. Comportamentalmente, a compra é motivada pela **eficiência**: para quem mora a menos de 1 milha do trabalho, a bicicleta é a solução de mobilidade mais lógica e rápida. Além disso, a quantidade de **carros** é o fator de maior influência na decisão, indicando que a bike é vista como um substituto estratégico ao veículo motorizado.
+"""""")
 
 # ----------------------------
 # 2. SEÇÃO: APRENDIZADOS MOZ DEVS DATAWAVE 2.0
