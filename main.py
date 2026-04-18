@@ -210,12 +210,13 @@ with col_ml1:
 with col_ml2:
     st.subheader("**🤖 Retrato do Cliente Ideal**")
     full_persona = (
-        f"O modelo identifica o comprador de alta probabilidade como um **{get_mode('Marriedarital Status')}** "
-        f"do gênero **{get_mode('Gender')}** na faixa de **{get_mode('Age brackets')}**. "
-        f"Geralmente um profissional de nível **{get_mode('Education')}** que trabalha como **{get_mode('Occupation')}**. "
-        f"Ele é **{get_mode('Home Owner')}**, reside na região **{get_mode('Region')}**, tem **{get_mode('Children')} filho(s)** "
-        f"e possui **{get_mode('Cars')} carro(s)**. O trajeto de **{get_mode('Commute Distance')}** é o gatilho da venda."
-    )
+    f"O modelo identifica o comprador de alta probabilidade como um **{get_mode('Marriedarital Status')}** "
+    f"do gênero **{get_mode('Gender')}** na faixa de **{get_mode('Age brackets')}**. "
+    f"Geralmente um profissional de nível **{get_mode('Education')}** que trabalha como **{get_mode('Occupation')}**. "
+    f"Ele é **{get_mode('Home Owner')}**, reside na região **{get_mode('Region')}**, tem **{get_mode('Children')} filho(s)** "
+    f"e possui **{get_mode('Cars')} carro(s)**. Pertence à faixa de renda **{get_mode('Income Group')}**, "
+    f"e o trajeto de **{get_mode('Commute Distance')}** é o gatilho da venda."
+)
     st.success(full_persona)
 
     st.markdown("#### **💰 Estratégia de Lucro**")
