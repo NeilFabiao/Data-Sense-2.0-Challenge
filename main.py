@@ -27,7 +27,7 @@ Com base nos dados analisados, o perfil com maior probabilidade de conversão é
 * **Educação:** Graduados com nível de **Bacharelado** (**35,1%**).
 
 **Justificativa Econômica e Comportamental:** Este grupo possui estabilidade financeira e alto poder aquisitivo. Comportamentalmente, a compra é motivada pela **eficiência**: para quem mora a menos de 1 milha do trabalho, a bicicleta é a solução de mobilidade mais lógica e rápida. Além disso, a quantidade de **carros** é o fator de maior influência na decisão, indicando que a bike é vista como um substituto estratégico ao veículo motorizado.
-"""""")
+""")
 
 # ----------------------------
 # 2. SEÇÃO: APRENDIZADOS MOZ DEVS DATAWAVE 2.0
