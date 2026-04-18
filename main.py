@@ -1,31 +1,74 @@
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 
 # Title
-st.title("📊 Data Sense 2.0 - Bakery Dataset")
+st.title("🚲 Bike Purchase Analysis - Yes/No Breakdown")
 
-# Load Excel file
-# Load specific sheet
+# Load dataset
 df = pd.read_excel(
     "Worked dataset- DataSense.xlsx",
     sheet_name="Working sheet"
 )
 
+df.columns = df.columns.str.strip()
 
+target = "Purchased Bike"
 
-# Show data
-st.subheader("Dataset Preview")
-st.dataframe(df)
+# ----------------------------
+# FUNCTION: YES/NO SPLIT PLOT
+# ----------------------------
+def plot_yes_no(feature):
+    st.subheader(f"{feature} vs Purchased Bike (Yes/No)")
 
-# Basic info
-st.subheader("Dataset Info")
-st.write(f"Rows: {df.shape[0]}")
-st.write(f"Columns: {df.shape[1]}")
+    ct = pd.crosstab(df[feature], df[target])
 
-# Columns
-st.subheader("Columns")
-st.write(df.columns.tolist())
+    fig, ax = plt.subplots()
+    ct.plot(kind="bar", stacked=True, ax=ax)
 
-# Missing values
-st.subheader("Missing Values")
-st.write(df.isnull().sum())
+    ax.set_ylabel("Count")
+    ax.legend(title="Purchased Bike")
+
+    st.pyplot(fig)
+
+# ----------------------------
+# KPI 1: Gender
+# ----------------------------
+if "Gender" in df.columns:
+    plot_yes_no("Gender")
+
+# ----------------------------
+# KPI 2: Marital Status
+# ----------------------------
+if "Marital Status" in df.columns:
+    plot_yes_no("Marital Status")
+
+# ----------------------------
+# KPI 3: Education
+# ----------------------------
+if "Education" in df.columns:
+    plot_yes_no("Education")
+
+# ----------------------------
+# KPI 4: Occupation
+# ----------------------------
+if "Occupation" in df.columns:
+    plot_yes_no("Occupation")
+
+# ----------------------------
+# KPI 5: Region
+# ----------------------------
+if "Region" in df.columns:
+    plot_yes_no("Region")
+
+# ----------------------------
+# KPI 6: Commute Distance
+# ----------------------------
+if "Commute Distance" in df.columns:
+    plot_yes_no("Commute Distance")
+
+# ----------------------------
+# KPI 7: Age Brackets
+# ----------------------------
+if "Age brackets" in df.columns:
+    plot_yes_no("Age brackets")
