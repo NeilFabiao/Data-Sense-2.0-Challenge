@@ -1,0 +1,9 @@
+#main packages
+
+shap
+matplotlib
+scikit-learn
+plotly
+statsmodels
+seaborn
+FPDF
