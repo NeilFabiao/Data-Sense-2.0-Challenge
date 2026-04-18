@@ -88,41 +88,74 @@ if "Age brackets" in df.columns:
     plot_bar_pie("Age brackets", resumo_idade)
 
 # ----------------------------
-# MACHINE LEARNING SECTION
+# MACHINE LEARNING SECTION (IMPROVED)
 # ----------------------------
 st.divider()
-st.title("🌳 O que realmente impulsiona a compra?")
-st.markdown("Utilizamos um modelo de **Árvore de Decisão** para identificar quais variáveis têm maior peso na decisão final de compra (comparando compradores vs. não compradores).")
+st.title("🌳 What Drives Bike Purchases (Decision Tree)")
 
+# 1. Clean and Prepare Data
 tree_df = df.copy().dropna()
+
+# --- THE FIX: Drop irrelevant columns like 'ID' ---
+# Also drop columns that might be 'leakage' or redundant
+cols_to_drop = ['ID'] 
+# Add any other columns here that don't make sense as predictors
+tree_df = tree_df.drop(columns=[c for c in cols_to_drop if c in tree_df.columns])
+
+# 2. Encode Target
 tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0})
 
-# Codificação
+# 3. Encode Categorical Features
+# We use a dictionary to keep track of encoders if we wanted to predict later
+le = LabelEncoder()
 categorical_cols = tree_df.select_dtypes(include="object").columns
-for col in categorical_cols:
-    tree_df[col] = LabelEncoder().fit_transform(tree_df[col])
 
+for col in categorical_cols:
+    tree_df[col] = le.fit_transform(tree_df[col])
+
+# 4. Define Features (X) and Target (y)
 X = tree_df.drop(columns=[target])
 y = tree_df[target]
 
-# Modelo
-model = DecisionTreeClassifier(max_depth=3, random_state=42)
+# 5. Train Model
+# We set min_samples_leaf to prevent the model from picking 
+# up "noise" or outliers like specific car counts that don't generalize.
+model = DecisionTreeClassifier(
+    max_depth=4, 
+    min_samples_leaf=10, 
+    random_state=42
+)
 model.fit(X, y)
 
-# Importância das Variáveis
-st.subheader("🚲 Variáveis mais influentes (Key Drivers)")
+# ----------------------------
+# FEATURE IMPORTANCE
+# ----------------------------
+st.subheader("🚲 Key Drivers of Bike Purchase")
+st.write("This chart shows which factors (Age, Income, Region, etc.) actually influence the decision to buy.")
 
-importance = pd.Series(model.feature_importances_, index=X.columns).sort_values()
+importance = pd.Series(model.feature_importances_, index=X.columns)
+# Filter out features with 0 importance to keep the chart clean
+importance = importance[importance > 0].sort_values()
 
 fig, ax = plt.subplots()
 importance.plot(kind="barh", ax=ax, color='teal')
-ax.set_title("Importância das Características no Modelo")
+ax.set_xlabel("Importance Score")
 st.pyplot(fig)
 
-# Top 5
-st.subheader("🔥 Top 5 Fatores Decisivos")
-top_5 = importance.sort_values(ascending=False).head(5)
-st.table(top_5)
+# ----------------------------
+# TOP FACTORS TABLE
+# ----------------------------
+st.subheader("🔥 Top Factors Explained")
 
-st.write("---")
-st.caption("Dashboard gerado para análise de comportamento do consumidor de bicicletas.")
+top_factors = importance.sort_values(ascending=False).head(5)
+
+if not top_factors.empty:
+    for factor, score in top_factors.items():
+        if factor == "Cars":
+            st.write(f"**{factor}:** Usually the strongest driver. People with fewer cars tend to buy more bikes.")
+        elif factor == "Commute Distance":
+            st.write(f"**{factor}:** Distance to work significantly changes the need for a bike.")
+        else:
+            st.write(f"**{factor}:** This feature has a {score:.2%} impact on the decision.")
+else:
+    st.write("No significant drivers found. Check if the dataset has enough variation.")
