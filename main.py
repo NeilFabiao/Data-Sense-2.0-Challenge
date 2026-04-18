@@ -160,7 +160,7 @@ with col_ml1:
 with col_ml2:
     st.subheader("**🤖 Retrato do Cliente Ideal**")
     full_persona = (
-        f"O modelo identifica o comprador de alta probabilidade como um **{get_mode('Marital Status')}** "
+        f"O modelo identifica o comprador de alta probabilidade como um **{get_mode('Marriedarital Status')}** "
         f"do gênero **{get_mode('Gender')}** na faixa de **{get_mode('Age brackets')}**. "
         f"Geralmente um profissional de nível **{get_mode('Education')}** que trabalha como **{get_mode('Occupation')}**. "
         f"Ele é **{get_mode('Home Owner')}**, reside na região **{get_mode('Region')}**, tem **{get_mode('Children')} filho(s)** "
