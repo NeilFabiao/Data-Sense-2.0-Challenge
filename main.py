@@ -61,8 +61,7 @@ if "Income" in df.columns:
     st.subheader("Income of Bike Buyers (Distribution)")
     fig, ax = plt.subplots()
     buyers["Income"].plot(kind="hist", bins=10, ax=ax)
-    st.pyplot(fig)if "Gender" in df.columns:
-    plot_yes_no("Gender")
+    st.pyplot(fig)    plot_yes_no("Gender")
 
 # ----------------------------
 # KPI 2: Marital Status
