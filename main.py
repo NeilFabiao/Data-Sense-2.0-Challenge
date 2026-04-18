@@ -127,9 +127,9 @@ with col_txt:
 
     # AI Generated Sentence
     full_persona = (
-        f"The Machine Learning analysis identifies the high-probability buyer as a **{get_mode('Marital Status')}** "
+        f"The Machine Learning analysis identifies the high-probability buyer as a **{get_mode('Marriedarital Status')}** "
         f"**{get_mode('Gender')}** within the **{get_mode('Age brackets')}** demographic. "
-        f"Typically a **{get_mode('Education')}** graduate working in a **{get_mode('Occupation')}** role, "
+        f"Typically a **{get_mode('Education')}** graduate who is a **{get_mode('Occupation')}** role, "
         f"this individual is likely a **{get_mode('Home Owner')}** living in **{get_mode('Region')}** "
         f"with **{get_mode('Children')} child(ren)** and **{get_mode('Cars')} vehicle(s)**. "
         f"With a commute of **{get_mode('Commute Distance')}**, they represent MozBikes' primary target for "
