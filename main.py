@@ -232,8 +232,8 @@ feature_recommendations = {
         "title": "Marketing por Faixa Etária",
         "action": (
             f"Idade influencia directamente a decisão de compra. "
-            f"Concentre os criativos no segmento **{get_mode('Age brackets')}** "
-            f"com mensagens de saúde, produtividade e eficiência no dia-a-dia."
+            f"O segmento dominante é **{get_mode('Age brackets')}** ({age_range_str}). "
+            f"Concentre os criativos nesta faixa com mensagens de saúde, produtividade e eficiência no dia-a-dia."
         )
     },
     "Age brackets": {
@@ -241,8 +241,8 @@ feature_recommendations = {
         "title": "Marketing por Faixa Etária",
         "action": (
             f"Idade influencia directamente a decisão de compra. "
-            f"Concentre os criativos no segmento **{get_mode('Age brackets')}** "
-            f"com mensagens de saúde, produtividade e eficiência no dia-a-dia."
+            f"O segmento dominante é **{get_mode('Age brackets')}** ({age_range_str}). "
+            f"Concentre os criativos nesta faixa com mensagens de saúde, produtividade e eficiência no dia-a-dia."
         )
     },
     "Commute Distance": {
