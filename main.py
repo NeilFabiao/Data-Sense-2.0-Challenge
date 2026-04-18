@@ -210,83 +210,17 @@ with col_ml1:
 with col_ml2:
     st.subheader("**🤖 Retrato do Cliente Ideal**")
     full_persona = (
-    f"O modelo identifica o comprador de alta probabilidade como um **{get_mode('Marriedarital Status')}** "
-    f"do gênero **{get_mode('Gender')}** na faixa de **{get_mode('Age brackets')}**. "
-    f"Geralmente um profissional de nível **{get_mode('Education')}** que trabalha como **{get_mode('Occupation')}**. "
-    f"Ele é **{get_mode('Home Owner')}**, reside na região **{get_mode('Region')}**, tem **{get_mode('Children')} filho(s)** "
-    f"e possui **{get_mode('Cars')} carro(s)**. Pertence à faixa de renda **{get_mode('Income Group')}**, "
-    f"e o trajeto de **{get_mode('Commute Distance')}** é o gatilho da venda."
-)
+        f"O modelo identifica o comprador de alta probabilidade como um **{get_mode('Marriedarital Status')}** "
+        f"do gênero **{get_mode('Gender')}** na faixa de **{get_mode('Age brackets')}**. "
+        f"Geralmente um profissional de nível **{get_mode('Education')}** que trabalha como **{get_mode('Occupation')}**. "
+        f"Ele é **{get_mode('Home Owner')}**, reside na região **{get_mode('Region')}**, tem **{get_mode('Children')} filho(s)** "
+        f"e possui **{get_mode('Cars')} carro(s)**. O trajeto de **{get_mode('Commute Distance')}** é o gatilho da venda."
+    )
     st.success(full_persona)
 
-    st.markdown("#### **💰 Estratégia de Lucro (Gerada pelo Modelo)**")
-
-# Get top 3 features from the model
-top_features = importance.sort_values(ascending=False).head(3)
-
-# Recommendation map — each feature has a tailored strategic action
-feature_recommendations = {
-    "Cars": (
-        "🚗 **Substituição de Veículo:** O número de carros é o maior preditor. "
-        f"Foque em donos de **{get_mode('Cars')} carro(s)** com campanha de economia mensal vs. combustível."
-    ),
-    "Income": (
-        "💵 **Segmentação por Renda:** Renda é driver chave. "
-        f"Priorize a faixa **{get_mode('Income Group')}** com opções de financiamento acessível."
-    ),
-    "Income Group": (
-        "💵 **Segmentação por Renda:** Renda é driver chave. "
-        f"Priorize a faixa **{get_mode('Income Group')}** com opções de financiamento acessível."
-    ),
-    "Age": (
-        "🎯 **Marketing por Faixa Etária:** Idade é preditor forte. "
-        f"Foque em **{get_mode('Age brackets')}** com mensagens de eficiência e saúde."
-    ),
-    "Age brackets": (
-        "🎯 **Marketing por Faixa Etária:** Idade é preditor forte. "
-        f"Foque em **{get_mode('Age brackets')}** com mensagens de eficiência e saúde."
-    ),
-    "Commute Distance": (
-        "📍 **Proximidade como Gatilho:** Distância do trabalho é decisiva. "
-        f"Campanhas geo-targeted para quem mora a **{get_mode('Commute Distance')}** do trabalho."
-    ),
-    "Occupation": (
-        "💼 **B2B e Parcerias Corporativas:** Ocupação é preditor relevante. "
-        f"Feche acordos com empresas que empregam **{get_mode('Occupation')}s**."
-    ),
-    "Marriedarital Status": (
-        "👨‍👩‍👧 **Apelo Familiar:** Estado civil influencia a compra. "
-        f"Campanhas para **{get_mode('Marriedarital Status')}s** com foco em mobilidade familiar."
-    ),
-    "Children": (
-        "👶 **Kits Família:** Número de filhos é relevante. "
-        f"Promova acessórios e bikes para famílias com **{get_mode('Children')} filho(s)**."
-    ),
-    "Education": (
-        "🎓 **Canal Educado:** Escolaridade prediz conversão. "
-        f"Use LinkedIn e conteúdo técnico para atingir graduados em **{get_mode('Education')}**."
-    ),
-    "Region": (
-        "🌍 **Geofencing Regional:** Região é fator de conversão. "
-        f"Concentre 80% do budget em **{get_mode('Region')}**."
-    ),
-    "Home Owner": (
-        "🏠 **Serviço Premium:** Ser proprietário indica estabilidade. "
-        f"Ofereça montagem em domicílio e garantia estendida para **{get_mode('Home Owner')}s**."
-    ),
-    "Gender": (
-        "⚡ **Campanhas Personalizadas:** Género influencia preferências. "
-        f"Desenvolva criativos distintos para o segmento **{get_mode('Gender')}** dominante."
-    ),
-}
-
-# Dynamically render top 3 recommendations
-for i, (feature, score) in enumerate(top_features.items(), 1):
-    rec = feature_recommendations.get(
-        feature,
-        f"📊 **{feature}** é um driver importante ({score:.1%}). Analise este segmento com prioridade."
-    )
-    st.write(f"{i}. {rec} *(Importância: {score:.1%})*")
+    st.markdown("#### **💰 Estratégia de Lucro**")
+    st.write("1. **Venda de Valor:** Foque na economia de combustível para profissionais.")
+    st.write("2. **Upselling:** Este perfil valoriza acessórios de qualidade e segurança.")
 
 # ----------------------------
 # 6. ROADMAP ESTRATÉGICO FINAL (RECOMENDAÇÕES)
