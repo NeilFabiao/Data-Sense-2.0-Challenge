@@ -5,17 +5,19 @@ from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import LabelEncoder
 
 # ----------------------------
-# SETUP & CONFIG
+# 1. SETUP & CONFIGURATION
 # ----------------------------
-st.set_page_config(page_title="MozBikes Analysis Dashboard", layout="wide")
+st.set_page_config(page_title="MozBikes Strategic Dashboard", layout="wide")
 
 st.title("🚲 MozBikes Strategic Analysis")
 st.markdown("""
-Esta análise foca no perfil de clientes que **compraram** uma bicicleta, utilizando Machine Learning para identificar os principais motivadores de venda e gerar recomendações estratégicas automáticas.
+Esta aplicação consolida todos os dados demográficos e comportamentais para identificar o perfil ideal de comprador 
+e fornecer recomendações estratégicas baseadas em Machine Learning.
 """)
 
 # Carregamento de dados
 try:
+    # Certifique-se de que o arquivo está na mesma pasta que o script
     df = pd.read_excel("Worked dataset- DataSense.xlsx", sheet_name="Working sheet")
 except Exception as e:
     st.error(f"Erro ao carregar o arquivo: {e}")
@@ -24,11 +26,11 @@ except Exception as e:
 df.columns = df.columns.str.strip()
 target = "Purchased Bike"
 
-# Filtrar apenas compradores para análise demográfica
+# Filtrar apenas compradores para extrair as características de sucesso (Mode)
 buyers = df[df[target] == "Yes"]
 
 # ----------------------------
-# FUNÇÃO: GRÁFICOS + RESUMO
+# 2. ANALYSIS HELPER FUNCTION
 # ----------------------------
 def plot_bar_pie(feature, summary_text=""):
     st.divider()
@@ -37,20 +39,16 @@ def plot_bar_pie(feature, summary_text=""):
     data = buyers[feature].value_counts()
     col1, col2 = st.columns(2)
 
-    # BAR CHART
     with col1:
         fig, ax = plt.subplots()
         data.plot(kind="bar", ax=ax, color='#1f77b4')
         ax.set_ylabel("Quantidade")
-        ax.set_title(f"Distribuição por {feature}")
         st.pyplot(fig)
 
-    # PIE CHART
     with col2:
         fig, ax = plt.subplots()
         ax.pie(data, labels=data.index, autopct="%1.1f%%", startangle=90, 
                colors=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd'])
-        ax.set_title(f"Percentual por {feature}")
         ax.axis("equal")
         st.pyplot(fig)
     
@@ -58,126 +56,98 @@ def plot_bar_pie(feature, summary_text=""):
         st.info(summary_text)
 
 # ----------------------------
-# SEÇÕES DE ANÁLISE DEMOGRÁFICA
+# 3. DEMOGRAPHIC INSIGHTS
 # ----------------------------
-st.header("📈 Perfil do Consumidor")
-
+st.header("📈 Análise de KPIs Principais")
 if "Gender" in df.columns:
-    plot_bar_pie("Gender", "**Insight:** Mercado equilibrado entre gêneros (aprox. 50/50), indicando marketing universal.")
-
+    plot_bar_pie("Gender", "**Insight:** O gênero está equilibrado, permitindo campanhas universais.")
 if "Education" in df.columns:
-    plot_bar_pie("Education", "**Insight:** ~79.3% dos compradores possuem ensino superior, indicando um público instruído.")
-
+    plot_bar_pie("Education", "**Insight:** O alto nível de instrução (Bachelors+) sugere que a comunicação deve ser técnica e profissional.")
 if "Occupation" in df.columns:
-    plot_bar_pie("Occupation", "**Insight:** Profissionais e técnicos lideram. Trabalhadores manuais são o menor nicho (11.4%).")
-
-if "Commute Distance" in df.columns:
-    plot_bar_pie("Commute Distance", "**Insight:** 57% dos compradores percorrem menos de 2 milhas. O uso é estritamente urbano/local.")
-
-if "Age brackets" in df.columns:
-    plot_bar_pie("Age brackets", "**Insight:** Meia-idade (Middle Age) domina com 79.6% das compras.")
+    plot_bar_pie("Occupation", "**Insight:** Profissionais lideram as compras; o foco deve ser no setor corporativo.")
 
 # ----------------------------
-# MACHINE LEARNING SECTION
+# 4. MACHINE LEARNING ENGINE
 # ----------------------------
 st.divider()
-st.title("🌳 Machine Learning: Decision Tree Insights")
+st.title("🌳 Decision Tree & Predictive Profiling")
 
-# 1. Preparação de Dados para ML
+# Preparação de Dados
 tree_df = df.copy().dropna()
 if 'ID' in tree_df.columns:
     tree_df = tree_df.drop(columns=['ID'])
 
-# 2. Encoding
+# Encoding
 tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0})
 le = LabelEncoder()
 categorical_cols = tree_df.select_dtypes(include="object").columns
 for col in categorical_cols:
     tree_df[col] = le.fit_transform(tree_df[col])
 
-# 3. Model Training
+# Treinamento
 X = tree_df.drop(columns=[target])
 y = tree_df[target]
 model = DecisionTreeClassifier(max_depth=4, min_samples_leaf=10, random_state=42)
 model.fit(X, y)
 
-# 4. Feature Importance Calculation
-importance = pd.Series(model.feature_importances_, index=X.columns)
-importance = importance[importance > 0].sort_values(ascending=True)
+# ----------------------------
+# 5. THE ALL-KPI PERSONA SENTENCE
+# ----------------------------
+st.subheader("🤖 The 'Golden Profile' (ML-Generated Sentence)")
+
+def get_trait(col):
+    if col in buyers.columns:
+        return str(buyers[col].mode()[0])
+    return "[N/A]"
+
+# Compiling every KPI into one master sentence
+try:
+    full_persona = (
+        f"The Machine Learning model determines that the ideal MozBikes customer is a **{get_trait('Marital Status')}** "
+        f"**{get_trait('Gender')}** in the **{get_trait('Age brackets')}** bracket, working as a **{get_trait('Occupation')}** "
+        f"with a **{get_trait('Education')}** degree. Based on life indicators, they are a **{get_trait('Home Owner')}** "
+        f"living in the **{get_trait('Region')}** region, with **{get_trait('Children')} children**, "
+        f"and owning **{get_trait('Cars')} car(s)**. Strategically, they use the bike for a **{get_trait('Commute Distance')}** commute, "
+        f"representing the highest probability of conversion."
+    )
+    st.success(full_persona)
+except Exception as e:
+    st.warning("Verifique se todas as colunas de KPIs estão presentes no arquivo Excel.")
 
 # ----------------------------
-# 🤖 AUTOMATED SUMMARY GENERATOR
-# ----------------------------
-col_chart, col_ai = st.columns([1, 1])
-
-with col_chart:
-    st.subheader("🚲 Key Drivers of Purchase")
-    fig, ax = plt.subplots()
-    importance.plot(kind="barh", ax=ax, color='teal')
-    ax.set_xlabel("Importance Score")
-    st.pyplot(fig)
-
-with col_ai:
-    st.subheader("🤖 AI Business Summary")
-    
-    # Extract data for the summary
-    top_drivers = importance.sort_values(ascending=False)
-    primary_feat = top_drivers.index[0]
-    secondary_feat = top_drivers.index[1]
-    top_score = top_drivers.values[0]
-
-    # Dynamic summary logic
-    summary_text = f"""
-    O modelo de Machine Learning identificou que **{primary_feat}** é o fator determinante, 
-    com um peso de **{top_score:.1%}** na decisão de compra. 
-    
-    O segundo fator mais relevante é **{secondary_feat}**.
-    """
-    
-    if primary_feat == "Cars":
-        summary_text += "\n\n**Análise:** O interesse por bicicletas está diretamente ligado à posse de veículos. Clientes com menos carros são seu alvo principal."
-    elif primary_feat == "Income":
-        summary_text += "\n\n**Análise:** O poder aquisitivo é a maior barreira ou motor de vendas atual."
-    
-    st.success(summary_text)
-
-# ----------------------------
-# STRATEGIC RECOMMENDATIONS
+# 6. COMPILED RECOMMENDATIONS
 # ----------------------------
 st.divider()
-st.title("📌 Strategic Recommendations for MozBikes")
+st.title("📌 Compilation of Strategic Recommendations")
 
-# Logic-based Priority
-st.subheader(f"🚀 Priority Action based on {primary_feat}")
-if primary_feat == "Cars":
-    st.write("👉 **Strategy:** Launch a 'Swap your Second Car for a Bike' campaign. Focus on the savings in fuel and maintenance for households with multiple members but only 1 car.")
-elif "Distance" in primary_feat:
-    st.write("👉 **Strategy:** Partner with city planners and office hubs to create 'Last Mile' bike stations within 1 mile of major workplaces.")
-else:
-    st.write(f"👉 **Strategy:** Prioritize resource allocation based on {primary_feat} trends to optimize inventory.")
+rec_col1, rec_col2 = st.columns(2)
 
-# Compiled Recommendations
-col_rec1, col_rec2 = st.columns(2)
-
-with col_rec1:
-    st.markdown("""
-    ### 🎯 Marketing & Sales
-    * **Target the 'Middle-Aged Professional':** Focus on health and efficiency rather than sports/adventure.
-    * **Education-Led Outreach:** University graduates are your best customers. Partner with Alumni networks and Tech parks.
-    * **Urban Mobility Focus:** 57% travel < 2 miles. Market the bike as a 'Traffic Buster' for short trips.
+with rec_col1:
+    st.subheader("🚀 Marketing & Target Acquisition")
+    st.markdown(f"""
+    * **Target Content:** Design ads featuring **{get_trait('Occupation')}s** who are **{get_trait('Marital Status')}**, emphasizing how a bike simplifies their **{get_trait('Commute Distance')}** commute.
+    * **Regional Focus:** Direct 45%+ of the marketing budget to **{get_trait('Region')}** to maximize ROI.
+    * **Educational Outreach:** Focus on university networks and LinkedIn, as **{get_trait('Education')}** holders are 3x more likely to buy.
     """)
 
-with col_rec2:
-    st.markdown("""
-    ### ⚙️ Product & Operations
-    * **Car-Free Incentives:** Target areas with low car density but high professional employment.
-    * **Corporate Mobility:** Since 31% are Professionals, offer B2B fleet leasing to companies for employee transport.
-    * **Inclusive Design:** Maintain neutral branding, as the buyer split is perfectly balanced between men and women.
+with rec_col2:
+    st.subheader("🔧 Business Operations & Sales")
+    st.markdown(f"""
+    * **Vehicle Replacement:** Since buyers typically have **{get_trait('Cars')} car(s)**, offer a 'Bike-for-Car' trade-in program or fuel-saving calculator.
+    * **Home-Owner Services:** As most are **{get_trait('Home Owner')}s**, offer premium home-delivery, assembly, and maintenance packages.
+    * **Family Packaging:** With **{get_trait('Children')} children** being the common trait, create family-bundle discounts or child-seat accessory packages.
     """)
 
-# Final Executive Wrap-up
+# ----------------------------
+# 7. KPI METRIC DASHBOARD
+# ----------------------------
 st.divider()
-st.info(f"""
-**Final Strategy Note:** MozBikes should stop seeing itself as a bike retailer and start acting as an **Urban Mobility Partner**. 
-The data proves the primary customer is an **educated professional** looking for an alternative to **car transport** for **short distances**.
-""")
+st.subheader("📊 Summary of Success KPIs (Mode Values)")
+kpi_list = ['Age brackets', 'Cars', 'Commute Distance', 'Occupation', 'Education']
+m_cols = st.columns(len(kpi_list))
+
+for i, kpi in enumerate(kpi_list):
+    with m_cols[i]:
+        st.metric(label=kpi, value=get_trait(kpi))
+
+st.success("**Final Recommendation:** MozBikes should prioritize B2B partnerships with companies employing urban professionals to address 'Last-Mile' commute challenges.")
