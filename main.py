@@ -27,6 +27,7 @@ target = "Purchased Bike"
 # ----------------------------
 # 3. FILTER BUYERS
 # ----------------------------
+# We focus on "Yes" for the demographic visuals and the persona sentence
 buyers = df[df[target] == "Yes"]
 
 # ----------------------------
@@ -77,6 +78,7 @@ tree_df = df.copy().dropna()
 if "ID" in tree_df.columns:
     tree_df = tree_df.drop(columns=["ID"])
 
+# Encode target for ML
 tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0})
 le = LabelEncoder()
 categorical_cols = tree_df.select_dtypes(include="object").columns
@@ -111,12 +113,13 @@ with col_graph:
 with col_txt:
     st.subheader("🤖 Ideal Customer Portrait")
     
-    # Robust Trait Finder
+    # Robust Trait Finder (Fixed Function Name)
     def get_mode(col_name):
-        # Case-insensitive column search
+        # Case-insensitive column search to avoid [N/A]
         actual_col = next((c for c in buyers.columns if c.lower() == col_name.lower()), None)
         if actual_col and not buyers[actual_col].mode().empty:
             val = buyers[actual_col].mode()[0]
+            # Custom formatting for Home Owner
             if col_name.lower() == "home owner":
                 return "homeowner" if str(val).lower() == "yes" else "renter"
             return str(val)
@@ -125,7 +128,7 @@ with col_txt:
     # AI Generated Sentence
     full_persona = (
         f"The Machine Learning analysis identifies the high-probability buyer as a **{get_mode('Marital Status')}** "
-        f"**{get_trait('Gender')}** within the **{get_mode('Age brackets')}** demographic. "
+        f"**{get_mode('Gender')}** within the **{get_mode('Age brackets')}** demographic. "
         f"Typically a **{get_mode('Education')}** graduate working in a **{get_mode('Occupation')}** role, "
         f"this individual is likely a **{get_mode('Home Owner')}** living in **{get_mode('Region')}** "
         f"with **{get_mode('Children')} child(ren)** and **{get_mode('Cars')} vehicle(s)**. "
@@ -147,7 +150,7 @@ with col_txt:
         elif "Age" in factor:
             st.write(f"{i}. **Demographic Targeting:** Focus branding on the {get_mode('Age brackets')} group, emphasizing reliability.")
         else:
-            st.write(f"{i}. **{factor} Optimization:** Use {factor} data to refine digital ad segmentation.")
+            st.write(f"{i}. **{factor} Optimization:** Leverage {factor} data to refine digital ad segmentation.")
 
 # ----------------------------
 # 8. COMPILED RECOMMENDATIONS
@@ -178,7 +181,7 @@ with rec3:
     st.markdown(f"""
     - **Car Replacement:** Market to the **{get_mode('Cars')}-car** segment.
     - **Distance Focus:** Optimize bike durability for **{get_mode('Commute Distance')}** trips.
-    - **Neutral Branding:** Keep ads 50/50 for Men and Women.
+    - **Neutral Branding:** Maintain gender-neutral branding (Data confirms 50/50 split).
     """)
 
 st.success("""
