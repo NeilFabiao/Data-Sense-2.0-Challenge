@@ -68,3 +68,64 @@ if "Commute Distance" in df.columns:
 
 if "Age brackets" in df.columns:
     plot_bar_pie("Age brackets")
+
+
+
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+import numpy as np
+
+# ----------------------------
+# SECTION TITLE
+# ----------------------------
+st.divider()
+st.title("🌳 What Drives Bike Purchases (Decision Tree)")
+
+# Copy dataframe (do not affect your original buyers df)
+tree_df = df.copy()
+
+# ----------------------------
+# CLEAN DATA
+# ----------------------------
+tree_df = tree_df.dropna()
+
+# Encode target
+tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0})
+
+# Encode categorical columns
+categorical_cols = tree_df.select_dtypes(include="object").columns
+
+for col in categorical_cols:
+    tree_df[col] = LabelEncoder().fit_transform(tree_df[col])
+
+# ----------------------------
+# SPLIT FEATURES
+# ----------------------------
+X = tree_df.drop(columns=[target])
+y = tree_df[target]
+
+# ----------------------------
+# TRAIN MODEL
+# ----------------------------
+model = DecisionTreeClassifier(max_depth=3, random_state=42)
+model.fit(X, y)
+
+# ----------------------------
+# FEATURE IMPORTANCE (YES DRIVERS)
+# ----------------------------
+st.subheader("🚲 Key Drivers of Bike Purchase (YES)")
+
+importance = pd.Series(model.feature_importances_, index=X.columns)
+importance = importance.sort_values(ascending=True)
+
+fig, ax = plt.subplots()
+importance.plot(kind="barh", ax=ax)
+ax.set_title("Factors influencing Bike Purchase")
+st.pyplot(fig)
+
+# ----------------------------
+# TOP FACTORS
+# ----------------------------
+st.subheader("🔥 Top 5 Factors")
+
+st.write(importance.sort_values(ascending=False).head(5))
