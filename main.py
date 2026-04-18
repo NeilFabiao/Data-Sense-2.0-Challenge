@@ -73,33 +73,26 @@ if "Age brackets" in df.columns:
 
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.preprocessing import LabelEncoder
-import numpy as np
 
-# ----------------------------
-# SECTION TITLE
-# ----------------------------
 st.divider()
 st.title("🌳 What Drives Bike Purchases (Decision Tree)")
 
-# Copy dataframe (do not affect your original buyers df)
 tree_df = df.copy()
-
-# ----------------------------
-# CLEAN DATA
-# ----------------------------
 tree_df = tree_df.dropna()
 
-# Encode target
+# ----------------------------
+# Encode ONLY categorical columns
+# (DO NOT touch numeric ones like Income, Cars, Age)
+# ----------------------------
 tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0})
 
-# Encode categorical columns
 categorical_cols = tree_df.select_dtypes(include="object").columns
 
 for col in categorical_cols:
     tree_df[col] = LabelEncoder().fit_transform(tree_df[col])
 
 # ----------------------------
-# SPLIT FEATURES
+# FEATURES & TARGET
 # ----------------------------
 X = tree_df.drop(columns=[target])
 y = tree_df[target]
@@ -113,19 +106,19 @@ model.fit(X, y)
 # ----------------------------
 # FEATURE IMPORTANCE (YES DRIVERS)
 # ----------------------------
-st.subheader("🚲 Key Drivers of Bike Purchase (YES)")
+st.subheader("🚲 Key Drivers of Bike Purchase")
 
 importance = pd.Series(model.feature_importances_, index=X.columns)
-importance = importance.sort_values(ascending=True)
+importance = importance.sort_values()
 
 fig, ax = plt.subplots()
 importance.plot(kind="barh", ax=ax)
-ax.set_title("Factors influencing Bike Purchase")
+ax.set_title("Factors influencing Bike Purchase (YES)")
 st.pyplot(fig)
 
 # ----------------------------
-# TOP FACTORS
+# TOP 5 FACTORS
 # ----------------------------
-st.subheader("🔥 Top 5 Factors")
+st.subheader("🔥 Top 5 Drivers of Purchase")
 
 st.write(importance.sort_values(ascending=False).head(5))
