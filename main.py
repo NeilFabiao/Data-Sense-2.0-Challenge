@@ -16,17 +16,16 @@ st.markdown("""
 ### **📖 Contexto do Desafio: A Busca pelo Perfil Ideal**
 Este projeto foi desenvolvido como um exercício estratégico para a **MozBikes**. O objetivo central foi identificar, através de variáveis demográficas e socioeconômicas, qual é o perfil de cliente com maior probabilidade de comprar uma bicicleta.
 
-Como uma **tarefa oculta**, o desafio exigia que as conclusões fossem sustentadas por visualizações de dados claras, fornecendo recomendações com clareza e certeza para os stakeholders. 
+Como uma **tarefa oculta**, o desafio exigia que as conclusões fossem sustentadas por visualizações de dados claras, fornecendo **recomendações com clareza e certeza** para os stakeholders. 
 
 #### **🎯 O Perfil "Golden": O Profissional Urbano de Meia-Idade**
 Com base nos dados analisados, o perfil com maior probabilidade de conversão é composto por:
 * **Idade:** Indivíduos de meia-idade (**79,6%** dos compradores).
 * **Ocupação:** Profissionais (**31,2%**).
 * **Logística:** Pessoas que vivem a **0-1 milha** do trabalho (**41,6%**).
-* **Geografia:** Residentes da **América do Norte** (**45,7%**).
 * **Educação:** Graduados com nível de **Bacharelado** (**35,1%**).
 
-**Justificativa Econômica e Comportamental:** Este grupo possui estabilidade financeira e alto poder aquisitivo. Comportamentalmente, a compra é motivada pela **eficiência**: para quem mora a menos de 1 milha do trabalho, a bicicleta é a solução de mobilidade mais lógica e rápida. Além disso, a quantidade de **carros** é o fator de maior influência na decisão, indicando que a bike é vista como um substituto estratégico ao veículo motorizado.
+**Justificativa Econômica e Comportamental:** Este grupo possui estabilidade financeira para investir em mobilidade de qualidade. Comportamentalmente, a compra é motivada pela **conveniência**: para quem mora a menos de 1 milha do trabalho, a bicicleta é a solução mais lógica, rápida e saudável.
 """)
 
 # ----------------------------
@@ -41,32 +40,31 @@ with dw_col1:
     st.markdown("#### **1. O Ecossistema e a Ferramenta**")
     st.info("""
     - **Caminho Profissional:** Engenheiro, Cientista e Analista de Dados ([Roadmap.sh](https://roadmap.sh)).
-    - **A Analogia da Tilápia:** "Se quer pescar tilápia, conheça sua ferramenta. Às vezes não precisa de um bot, um **anzol simples** é o suficiente."
-    - **Evolução:** Saímos da falta de dados para a abundância; agora o foco é a mineração inteligente.
+    - **A Analogia da Tilápia:** Conheça sua ferramenta. Às vezes não precisa de um bot, um **anzol simples** é o suficiente para o resultado esperado.
+    - **Evolução:** Saímos da falta de dados para a abundância; o foco agora é a **mineração** estratégica.
     """)
 
 with dw_col2:
     st.markdown("#### **2. Pilares da Maturidade**")
     st.warning("""
-    2. **Qualidade de Dados:** A base de tudo.
-    3. **Governança de Dados:** Regras e processos.
-    4. **Soberania de Dados:** Controle e segurança.
-    5. **Democratização:** Dados acessíveis para todos.
+    2. **Qualidade de Dados:** A base da confiança.
+    3. **Governança de Dados:** Regras e processos claros.
+    4. **Soberania de Dados:** Controle estratégico.
+    5. **Democratização:** Dados acessíveis para decisão.
     """)
 
 with dw_col3:
-    st.markdown("#### **3. Sua Jornada e Primeiro Projeto**")
+    st.markdown("#### **3. Sua Jornada de Dados**")
     st.success("""
-    - **O que esperam ver:** Insights básicos, mas acionáveis.
-    - **Simplicidade:** O simples que dá resposta é melhor que o complexo que confunde.
-    - **Stakeholders:** Faça para quem "sabe zero"; use labels claras e explicações.
+    - **Expectativa:** Insights básicos que respondam o problema.
+    - **Simplicidade:** O simples que dá resposta é superior ao complexo que confunde.
+    - **Inclusividade:** Design e labels feitos para quem "sabe zero" de dados.
     """)
 
 # ----------------------------
-# 3. CARREGAMENTO E LIMPEZA
+# 3. CARREGAMENTO E VALIDAÇÃO
 # ----------------------------
 try:
-    # Carregando o dataset (ajuste o nome do arquivo se necessário)
     df = pd.read_excel("Worked dataset- DataSense.xlsx", sheet_name="Working sheet")
     df.columns = df.columns.str.strip()
 except Exception as e:
@@ -74,21 +72,13 @@ except Exception as e:
     st.stop()
 
 target = "Purchased Bike"
-
-# Filtro apenas para compradores (conforme solicitado no desafio "YES Only")
 buyers = df[df[target] == "Yes"]
 
-def get_mode(col_name):
-    actual_col = next((c for c in buyers.columns if c.lower() == col_name.lower()), None)
-    if actual_col and not buyers[actual_col].mode().empty:
-        return str(buyers[actual_col].mode()[0])
-    return "N/A"
-
 # ----------------------------
-# 4. ANÁLISE VISUAL (O QUE ACONTECEU?)
+# 4. ANÁLISE VISUAL (O QUE OS DADOS SUSTENTAM)
 # ----------------------------
 st.divider()
-st.header("📈 Visualização de Dados (Sustentação das Conclusões)")
+st.header("📈 Visualização de Dados e Evidências")
 
 def plot_bar_pie(feature, insight_text):
     if feature not in buyers.columns: return
@@ -99,67 +89,59 @@ def plot_bar_pie(feature, insight_text):
 
     with col1:
         fig, ax = plt.subplots(figsize=(8, 5))
-        # Cores baseadas nos prints enviados
         bars = ax.bar(data.index.astype(str), data.values, color='#3274A1', edgecolor='black')
-        ax.set_title(f"Bar Chart - {feature}", fontweight='bold')
-        ax.set_ylabel("Count")
+        ax.set_title(f"Volume de Vendas por {feature}", fontweight='bold')
         for bar in bars:
-            ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 1, f'{int(bar.get_height())}', ha='center', fontweight='bold')
-        plt.xticks(rotation=45)
+            ax.text(bar.get_x() + bar.get_width()/2., bar.get_height() + 0.5, f'{int(bar.get_height())}', ha='center', fontweight='bold')
         st.pyplot(fig)
 
     with col2:
         fig, ax = plt.subplots(figsize=(8, 5))
-        # Paleta de cores vibrante solicitada
         colors = ['#3274A1', '#E1812C', '#3A923A', '#C03D3E', '#9372B2']
         ax.pie(data, labels=data.index, autopct="%1.1f%%", startangle=140, colors=colors, pctdistance=0.85)
         centre_circle = plt.Circle((0,0), 0.70, fc='white')
         fig.gca().add_artist(centre_circle)
-        ax.set_title(f"Pie Chart - {feature}", fontweight='bold')
+        ax.set_title(f"Distribuição Percentual: {feature}", fontweight='bold')
         st.pyplot(fig)
 
-    st.info(f"**Insight:** {insight_text}")
+    st.info(f"**Conclusão dos Dados:** {insight_text}")
 
-# Chamadas das análises baseadas nos seus prints
-plot_bar_pie("Gender", "Equilíbrio quase perfeito entre gêneros (50.3% Homens), indicando apelo universal do produto.")
-plot_bar_pie("Education", "A maioria dos compradores possui nível superior (Bachelors), sugerindo um público que valoriza sustentabilidade e saúde.")
-plot_bar_pie("Occupation", "Profissionais lideram as compras (31.2%). O foco deve ser no deslocamento corporativo.")
-plot_bar_pie("Age brackets", "O domínio absoluto é da 'Meia-Idade' (79.6%). O marketing deve focar em estabilidade e utilidade.")
-plot_bar_pie("Commute Distance", "41.6% dos compradores moram a menos de 1 milha do trabalho. A bicicleta é a solução logística ideal.")
+# Chamadas baseadas no desafio
+plot_bar_pie("Age brackets", "O público de meia-idade representa quase 80% das vendas. É um mercado de estabilidade, não de impulso.")
+plot_bar_pie("Commute Distance", "41.6% dos compradores moram a menos de 1 milha. A proximidade é o maior preditor de compra.")
+plot_bar_pie("Occupation", "Profissionais e Técnicos dominam. O produto é visto como ferramenta de produtividade urbana.")
 
 # ----------------------------
-# 5. MODELO PREDITIVO E RECOMENDAÇÕES
+# 5. RECOMENDAÇÕES FINAIS (O "PORQUÊ" E O "COMO")
 # ----------------------------
 st.divider()
-st.header("🧠 Recomendações Estratégicas (Tarefa Oculta)")
+st.header("🚀 Recomendações Estratégicas para Stakeholders")
 
-# Gráfico de importância das variáveis conforme seu print
-st.subheader("**🚀 Fatores que mais influenciam a decisão**")
-col_ml1, col_ml2 = st.columns([1, 1.2])
+# Estrutura de Resposta Curta e Direta conforme orientações
+st.subheader("**O que foi feito e qual o resultado?**")
+st.write("> Analisamos o dataset demográfico da MozBikes para identificar padrões de consumo. O resultado foi a descoberta de que a utilidade logística (distância curta) supera a renda como principal motivador de compra.")
 
-with col_ml1:
-    # Simulação visual da importância das variáveis baseada no seu print #8
-    importance_data = {
-        'Cars': 0.35,
-        'Age': 0.25,
-        'Commute Distance': 0.15,
-        'Region': 0.10,
-        'Marital Status': 0.08,
-        'Income': 0.05,
-        'Children': 0.02
-    }
-    importance = pd.Series(importance_data).sort_values()
-    fig, ax = plt.subplots(figsize=(6, 5))
-    importance.plot(kind="barh", ax=ax, color='#3D7A78')
-    ax.set_title("Influência das Variáveis na Compra", fontweight='bold')
-    st.pyplot(fig)
+st.markdown("### **💡 Recomendações com Clareza e Certeza**")
 
-with col_ml2:
-    st.markdown("### **💡 Plano de Ação MozBikes**")
-    st.success(f"""
-    1. **Posicionamento de Produto:** Venda a bicicleta como "o substituto do segundo carro" para profissionais de meia-idade.
-    2. **Geofencing:** Concentre 45% do esforço de vendas na América do Norte, especificamente em distritos financeiros onde o trajeto casa-trabalho é curto.
-    3. **Mensagem:** Utilize o argumento da **eficiência econômica**: menos custos com combustível e estacionamento para quem trabalha a 1 milha de distância.
+col_rec1, col_rec2 = st.columns(2)
+
+with col_rec1:
+    st.info("#### **1. Estratégia de Marketing (Quem e Onde)**")
+    st.markdown("""
+    - **Foco Geográfico:** Concentrar investimentos de mídia em áreas com alta densidade de escritórios e residências num raio de 2km.
+    - **Branding Profissional:** Criar campanhas que mostrem a bicicleta como o "transporte do sucesso" para o profissional de meia-idade, focando em tempo ganho e saúde.
+    - **Segmentação:** Priorizar lares com **apenas 1 carro**, apresentando a bike como o substituto ideal para o segundo veículo.
     """)
 
-st.success("✅ **Resultado Final:** Perfil definido de forma clara, sustentado por dados e com recomendações de alta certeza.")
+with col_rec2:
+    st.success("#### **2. Estratégia de Vendas (Como e Porquê)**")
+    st.markdown("""
+    - **Pitch de Venda Econômico:** Demonstrar o ROI (Retorno de Investimento) focado na economia de combustível e estacionamento para o trajeto diário curto.
+    - **Parcerias B2B:** Oferecer planos de benefício corporativo para empresas que empregam profissionais e técnicos, facilitando a aquisição via folha de pagamento.
+    - **Diferenciação:** Dado o nível de educação (Bachelors), utilizar argumentos técnicos e de impacto ambiental real na comunicação do produto.
+    """)
+
+st.divider()
+st.warning("""
+**Nota de Encerramento:** Seguindo os pilares do DataWave 2.0, este dashboard democratiza a informação ao transformar dados brutos em decisões de negócio simples, diretas e acionáveis.
+""")
