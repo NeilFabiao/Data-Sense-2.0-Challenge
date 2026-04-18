@@ -1,1 +1,162 @@
-import streamlit as st import pandas as pd import matplotlib.pyplot as plt from sklearn.tree import DecisionTreeClassifier from sklearn.preprocessing import LabelEncoder # ---------------------------- # SETUP # ---------------------------- st.set_page_config(page_title="Análise Bike Buyers", layout="wide") st.title("🚲 Bike Buyers Analysis (YES Only)") st.markdown("Esta análise foca exclusivamente no perfil de clientes que **compraram** uma bicicleta, identificando padrões demográficos e comportamentais.") # Carregamento de dados (ajuste o caminho se necessário) try: df = pd.read_excel("Worked dataset- DataSense.xlsx", sheet_name="Working sheet") except: st.error("Arquivo não encontrado. Verifique o nome do arquivo Excel.") st.stop() df.columns = df.columns.str.strip() target = "Purchased Bike" # Filtrar apenas compradores buyers = df[df[target] == "Yes"] # ---------------------------- # FUNÇÃO: GRÁFICOS + RESUMO # ---------------------------- def plot_bar_pie(feature, summary_text=""): st.divider() st.subheader(f"📊 {feature} - Perfil dos Compradores") data = buyers[feature].value_counts() col1, col2 = st.columns(2) # ---------------- BAR CHART ---------------- with col1: fig, ax = plt.subplots() data.plot(kind="bar", ax=ax, color='#1f77b4') ax.set_ylabel("Quantidade") ax.set_title(f"Distribuição por {feature}") st.pyplot(fig) # ---------------- PIE CHART ---------------- with col2: fig, ax = plt.subplots() ax.pie(data, labels=data.index, autopct="%1.1f%%", startangle=90, colors=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']) ax.set_title(f"Percentual por {feature}") ax.axis("equal") st.pyplot(fig) # Exibir o texto de resumo logo abaixo dos gráficos if summary_text: st.info(summary_text) # ---------------------------- # SEÇÕES DE ANÁLISE COM INSIGHTS # ---------------------------- if "Gender" in df.columns: resumo_genero = "**Insight:** O mercado está perfeitamente equilibrado entre homens (50.3%) e mulheres (49.7%), indicando que o gênero não é um fator limitante para vendas." plot_bar_pie("Gender", resumo_genero) if "Marital Status" in df.columns: resumo_civil = "**Insight:** Analise se clientes casados ou solteiros têm maior propensão ao lazer ou transporte prático." plot_bar_pie("Marital Status", resumo_civil) if "Education" in df.columns: resumo_edu = "**Insight:** Cerca de 79.3% dos compradores possuem ensino superior (completo ou incompleto), sugerindo um público com maior nível de instrução." plot_bar_pie("Education", resumo_edu) if "Occupation" in df.columns: resumo_occ = "**Insight:** Profissionais liberais e técnicos especializados lideram as compras. Trabalhadores manuais representam a menor fatia (11.4%)." plot_bar_pie("Occupation", resumo_occ) if "Region" in df.columns: resumo_reg = "**Insight:** A América do Norte é o principal mercado (45.7%), seguida pela Europa. O foco de marketing deve priorizar estas regiões." plot_bar_pie("Region", resumo_reg) if "Commute Distance" in df.columns: resumo_dist = "**Insight:** Uso predominantemente urbano e de curta distância. 57% dos compradores percorrem menos de 2 milhas." plot_bar_pie("Commute Distance", resumo_dist) if "Age brackets" in df.columns: resumo_idade = "**Insight:** A meia-idade domina esmagadoramente com 79.6% das compras. Adolescentes e idosos são nichos muito menores." plot_bar_pie("Age brackets", resumo_idade) # ---------------------------- # MACHINE LEARNING SECTION (IMPROVED) # ---------------------------- st.divider() st.title("🌳 What Drives Bike Purchases (Decision Tree)") # 1. Clean and Prepare Data tree_df = df.copy().dropna() # --- THE FIX: Drop irrelevant columns like 'ID' --- # Also drop columns that might be 'leakage' or redundant cols_to_drop = ['ID'] # Add any other columns here that don't make sense as predictors tree_df = tree_df.drop(columns=[c for c in cols_to_drop if c in tree_df.columns]) # 2. Encode Target tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0}) # 3. Encode Categorical Features # We use a dictionary to keep track of encoders if we wanted to predict later le = LabelEncoder() categorical_cols = tree_df.select_dtypes(include="object").columns for col in categorical_cols: tree_df[col] = le.fit_transform(tree_df[col]) # 4. Define Features (X) and Target (y) X = tree_df.drop(columns=[target]) y = tree_df[target] # 5. Train Model # We set min_samples_leaf to prevent the model from picking # up "noise" or outliers like specific car counts that don't generalize. model = DecisionTreeClassifier( max_depth=4, min_samples_leaf=10, random_state=42 ) model.fit(X, y) # ---------------------------- # FEATURE IMPORTANCE # ---------------------------- st.subheader("🚲 Key Drivers of Bike Purchase") st.write("This chart shows which factors (Age, Income, Region, etc.) actually influence the decision to buy.") importance = pd.Series(model.feature_importances_, index=X.columns) # Filter out features with 0 importance to keep the chart clean importance = importance[importance > 0].sort_values() fig, ax = plt.subplots() importance.plot(kind="barh", ax=ax, color='teal') ax.set_xlabel("Importance Score") st.pyplot(fig) # ---------------------------- # TOP FACTORS TABLE # ---------------------------- st.subheader("🔥 Top Factors Explained") top_factors = importance.sort_values(ascending=False).head(5) if not top_factors.empty: for factor, score in top_factors.items(): if factor == "Cars": st.write(f"**{factor}:** Usually the strongest driver. People with fewer cars tend to buy more bikes.") elif factor == "Commute Distance": st.write(f"**{factor}:** Distance to work significantly changes the need for a bike.") else: st.write(f"**{factor}:** This feature has a {score:.2%} impact on the decision.") else: st.write("No significant drivers found. Check if the dataset has enough variation.")
+import streamlit as st
+import pandas as pd
+import matplotlib.pyplot as plt
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.preprocessing import LabelEncoder
+
+# ----------------------------
+# SETUP
+# ----------------------------
+st.set_page_config(page_title="Análise Bike Buyers", layout="wide")
+
+st.title("🚲 Bike Buyers Analysis (YES Only)")
+st.markdown(
+    "Esta análise foca exclusivamente no perfil de clientes que **compraram** uma bicicleta, "
+    "identificando padrões demográficos e comportamentais."
+)
+
+# ----------------------------
+# LOAD DATA
+# ----------------------------
+try:
+    df = pd.read_excel("Worked dataset- DataSense.xlsx", sheet_name="Working sheet")
+except:
+    st.error("Arquivo não encontrado. Verifique o nome do arquivo Excel.")
+    st.stop()
+
+df.columns = df.columns.str.strip()
+target = "Purchased Bike"
+
+# ----------------------------
+# FILTER BUYERS
+# ----------------------------
+buyers = df[df[target] == "Yes"]
+
+# ----------------------------
+# FUNCTION: BAR + PIE
+# ----------------------------
+def plot_bar_pie(feature, summary_text=""):
+    st.divider()
+    st.subheader(f"📊 {feature} - Perfil dos Compradores")
+
+    data = buyers[feature].value_counts()
+    col1, col2 = st.columns(2)
+
+    # BAR
+    with col1:
+        fig, ax = plt.subplots()
+        data.plot(kind="bar", ax=ax, color='#1f77b4')
+        ax.set_ylabel("Quantidade")
+        ax.set_title(f"Distribuição por {feature}")
+        st.pyplot(fig)
+
+    # PIE
+    with col2:
+        fig, ax = plt.subplots()
+        ax.pie(
+            data,
+            labels=data.index,
+            autopct="%1.1f%%",
+            startangle=90,
+            colors=['#1f77b4', '#ff7f0e', '#2ca02c', '#d62728', '#9467bd']
+        )
+        ax.set_title(f"Percentual por {feature}")
+        ax.axis("equal")
+        st.pyplot(fig)
+
+    if summary_text:
+        st.info(summary_text)
+
+# ----------------------------
+# ANALYSIS SECTIONS
+# ----------------------------
+if "Gender" in df.columns:
+    plot_bar_pie(
+        "Gender",
+        "**Insight:** O mercado está equilibrado entre homens e mulheres."
+    )
+
+if "Education" in df.columns:
+    plot_bar_pie(
+        "Education",
+        "**Insight:** A maioria dos compradores possui ensino superior."
+    )
+
+if "Occupation" in df.columns:
+    plot_bar_pie(
+        "Occupation",
+        "**Insight:** Profissionais e trabalhadores qualificados dominam."
+    )
+
+if "Commute Distance" in df.columns:
+    plot_bar_pie(
+        "Commute Distance",
+        "**Insight:** A maioria tem deslocamentos curtos."
+    )
+
+if "Age brackets" in df.columns:
+    plot_bar_pie(
+        "Age brackets",
+        "**Insight:** A meia-idade domina as compras."
+    )
+
+# ----------------------------
+# MACHINE LEARNING
+# ----------------------------
+st.divider()
+st.title("🌳 What Drives Bike Purchases")
+
+tree_df = df.copy().dropna()
+
+# Remove ID if exists
+if "ID" in tree_df.columns:
+    tree_df = tree_df.drop(columns=["ID"])
+
+# Encode target
+tree_df[target] = tree_df[target].map({"Yes": 1, "No": 0})
+
+# Encode categorical
+le = LabelEncoder()
+categorical_cols = tree_df.select_dtypes(include="object").columns
+
+for col in categorical_cols:
+    tree_df[col] = le.fit_transform(tree_df[col])
+
+# Split
+X = tree_df.drop(columns=[target])
+y = tree_df[target]
+
+# Train model
+model = DecisionTreeClassifier(max_depth=4, min_samples_leaf=10, random_state=42)
+model.fit(X, y)
+
+# ----------------------------
+# FEATURE IMPORTANCE
+# ----------------------------
+st.subheader("🚲 Key Drivers of Bike Purchase")
+
+importance = pd.Series(model.feature_importances_, index=X.columns)
+importance = importance[importance > 0].sort_values()
+
+fig, ax = plt.subplots()
+importance.plot(kind="barh", ax=ax, color='teal')
+ax.set_xlabel("Importance Score")
+st.pyplot(fig)
+
+# ----------------------------
+# TOP FACTORS
+# ----------------------------
+st.subheader("🔥 Top Factors Explained")
+
+top_factors = importance.sort_values(ascending=False).head(5)
+
+if not top_factors.empty:
+    for factor, score in top_factors.items():
+        if factor == "Cars":
+            st.write("**Cars:** Fewer cars → higher likelihood to buy a bike.")
+        elif factor == "Commute Distance":
+            st.write("**Commute Distance:** Short distances increase bike usage.")
+        else:
+            st.write(f"**{factor}:** Impact = {score:.2%}")
+else:
+    st.write("No significant drivers found.")
