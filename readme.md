@@ -81,4 +81,4 @@ Thank you to **Moz Devs** for this fun experience, and to the amazing team which
 
 * Repo owner Neil Fabião -> @neilfabiao ✌🏾
 
-![](https://komarev.com/ghpvc/?username=mozdevs&color=blue)
+![](https://komarev.com/ghpvc/?username=mozdevsfinal&color=blue)
