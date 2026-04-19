@@ -253,7 +253,7 @@ with col_ml2:
         f"Geralmente um profissional de nível **{get_mode('Education')}** que trabalha como **{get_mode('Occupation')}**. "
         f"Ele é **{get_mode('Home Owner')}**, reside na região **{get_mode('Region')}**, tem **{get_mode('Children')} filho(s)** "
         f"e possui **{get_mode('Cars')} carro(s)**. Pertence à faixa de renda **{get_mode('Income Group')}**, "
-        f"e o trajeto de **{get_mode('Commute Distance')}** é o gatilho da venda."
+        f"e o trajeto de **{get_mode('Commute Distance')}** é o perfeito para venda."
     )
     st.success(full_persona)
 
