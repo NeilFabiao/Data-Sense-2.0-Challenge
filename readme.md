@@ -16,8 +16,6 @@ Para isso, o projeto analisa variáveis demográficas e socioeconómicas, susten
 * **Análise Visual Sustentada:** Gráficos interativos (Barras e Pie Charts) que explicam o comportamento de cada segmento.
 * **Engine de Machine Learning:** * Uso de **Árvore de Decisão** para prever a propensão de compra.
     * Cálculo de **Importância das Variáveis** (Feature Importance) para saber o que realmente move o ponteiro das vendas.
-* **Estratégia Automática:** Geração de recomendações de marketing baseadas nos pesos atribuídos pelo modelo de ML (ex: foco em substituição de veículos, geofencing ou parcerias B2B).
-* **Roadmap Estratégico:** Plano de ação dividido em Aquisição, Operações e Escala.
 
 ## 🛠️ Tecnologias Utilizadas
 
