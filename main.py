@@ -246,7 +246,7 @@ with col_ml1:
     plt.close(fig)
 
 with col_ml2:
-    st.subheader("**🤖 Retrato do Cliente Ideal**")
+    st.subheader("**🧾📑📝 Perfil do Cliente Ideal**")
     full_persona = (
         f"O modelo identifica o comprador de alta probabilidade como um **{get_mode('Marriedarital Status')}** "
         f"do gênero **{get_mode('Gender')}** na faixa de **{top_age_bracket}** ({age_range_str}). "
