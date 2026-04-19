@@ -65,7 +65,7 @@ O desenvolvimento deste dashboard seguiu os pilares de maturidade de dados discu
 
 Thank you to **Moz Devs** for this fun experience, and to the amazing team which I had the pleasure to present the solution :
 
-**DS Group**
+**DS Group ✅ **
 1. Inácio  
 2. Jorge  
 3. Neil  
